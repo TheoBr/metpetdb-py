@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.views.generic.simple import direct_to_template
 # Uncomment the next two lines to enable the admin:
 #from django.contrib import admin
 #admin.autodiscover()
@@ -24,6 +23,7 @@ url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'
 url(r'^webservices/samples$', 'webservices.views.samples'),
 url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analyses'),
 
+    (r'api/', include('api.urls')),
 
     # Examples:
     # url(r'^$', 'metpetdb.views.home', name='home'),
