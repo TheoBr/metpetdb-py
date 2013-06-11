@@ -20,6 +20,7 @@ url(r'^webservices/sample/(\d+)/json/$','webservices.api.sample'),
 url(r'^webservices/subsample/(\d+)/json/$','webservices.api.subsample'),
 url(r'^webservices/chemicalanalysis/(\d+)/json$', 'webservices.api.chemical_analysis'),
 url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'),
+url(r'^webservices/subsample/(\d+)/images/json/$','webservices.api.subsample_images'),
 #below URLs- Not sure if these are used anywhere as of now
 url(r'^webservices/samples$', 'webservices.views.samples'),
 url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analyses'),
