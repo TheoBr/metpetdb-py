@@ -1,0 +1,10 @@
+K 13
+svn:eol-style
+V 6
+native
+K 13
+svn:mergeinfo
+V 140
+/sandbox/roberthl/openlayers/lib/OpenLayers/BaseTypes/Element.js:9745-9748
+/trunk/openlayers/lib/OpenLayers/BaseTypes/Element.js:10252-10278
+END

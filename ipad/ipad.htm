@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>MetPetDB Image Map</title>
+    
+    <script>
+
+    </script>
+    
+	<!-- Style Sheets ------------------------------------------------------------------ -->
+	<link rel="stylesheet" href="/css/bootstrap.css" type="text/css"/>
+	<link rel="stylesheet" href="/css/ipad.css" type="text/css"/>
+	    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+	<!--
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+
+    <link rel="stylesheet" href="/lib/theme/default/style.css" type="text/css">
+    <link rel="stylesheet" href="/lib/styles.css" type="text/css">
+	-->
+	<!-- Core Scripts ----------------------------------------------------------------------------->
+    <script src="/lib/jquery.js" type="text/javascript"></script>
+    <script src="/lib/jquery.csv.js" type="text/javascript"></script>
+    <script src="/lib/jquery.tooltip.js" type="text/javascript"></script>
+	<script src="/lib/jquery-ui.js"></script>
+	<script src="/lib/FileAPI/FileAPI.min.js"></script>
+    <script src="/lib/OpenLayers.js"></script>    
+    <script type="text/javascript" language="javascript" src="/lib/media/js/jquery.dataTables.js"></script>
+    <script src="/lib/jszip/jszip.js"></script>
+    <script src="/lib/jszip/jszip-load.js"></script>
+    <script src="/lib/downloadify/src/downloadify.js"></script>
+    <script src="/lib/Blob.js"></script>
+<!--
+    <script src="/lib/Ragbag/Control/ModifyFeature-tools.js"></script>
+    <script src="/lib/Ragbag/Handler/Path-patch.js"></script>
+-->
+
+
+    <script src="/lib/FileSaver.js"></script>
+<script src="/lib/OpenLayers/Util.js"></script>
+<script src="/lib/OpenLayers/BaseTypes.js"></script>
+<script src="/lib/OpenLayers/BaseTypes/Class.js"></script>
+<script src="/lib/OpenLayers/BaseTypes/Bounds.js"></script>
+<script src="/lib/OpenLayers/BaseTypes/Element.js"></script>
+<script src="/lib/OpenLayers/BaseTypes/LonLat.js"></script>
+<script src="/lib/OpenLayers/BaseTypes/Pixel.js"></script>
+<script src="/lib/OpenLayers/BaseTypes/Size.js"></script>
+<script src="/lib/OpenLayers/Console.js"></script>
+<script src="/lib/OpenLayers/Tween.js"></script>
+<script src="/lib/Rico/Corner.js"></script>
+<script src="/lib/Rico/Color.js"></script>
+<script src="/lib/OpenLayers/Ajax.js"></script>
+<script src="/lib/OpenLayers/Events.js"></script>
+<script src="/lib/OpenLayers/Request.js"></script>
+<script src="/lib/OpenLayers/Request/XMLHttpRequest.js"></script>
+<script src="/lib/OpenLayers/Projection.js"></script>
+<script src="/lib/OpenLayers/Map.js"></script>
+<script src="/lib/OpenLayers/Layer.js"></script>
+<script src="/lib/OpenLayers/Icon.js"></script>
+<script src="/lib/OpenLayers/Marker.js"></script>
+<script src="/lib/OpenLayers/Marker/Box.js"></script>
+<script src="/lib/OpenLayers/Popup.js"></script>
+<script src="/lib/OpenLayers/Tile.js"></script>
+<script src="/lib/OpenLayers/Tile/Image.js"></script>
+<script src="/lib/OpenLayers/Tile/Image/IFrame.js"></script>
+<script src="/lib/OpenLayers/Tile/WFS.js"></script>
+<script src="/lib/OpenLayers/Layer/Image.js"></script>
+<script src="/lib/OpenLayers/Layer/SphericalMercator.js"></script>
+<script src="/lib/OpenLayers/Layer/EventPane.js"></script>
+<script src="/lib/OpenLayers/Layer/FixedZoomLevels.js"></script>
+<script src="/lib/OpenLayers/Layer/Google.js"></script>
+<script src="/lib/OpenLayers/Layer/VirtualEarth.js"></script>
+<script src="/lib/OpenLayers/Layer/Yahoo.js"></script>
+<script src="/lib/OpenLayers/Layer/HTTPRequest.js"></script>
+<script src="/lib/OpenLayers/Layer/Grid.js"></script>
+<script src="/lib/OpenLayers/Layer/MapGuide.js"></script>
+<script src="/lib/OpenLayers/Layer/MapServer.js"></script>
+<script src="/lib/OpenLayers/Layer/MapServer/Untiled.js"></script>
+<script src="/lib/OpenLayers/Layer/KaMap.js"></script>
+<script src="/lib/OpenLayers/Layer/KaMapCache.js"></script>
+<script src="/lib/OpenLayers/Layer/MultiMap.js"></script>
+<script src="/lib/OpenLayers/Layer/Markers.js"></script>
+<script src="/lib/OpenLayers/Layer/Text.js"></script>
+<script src="/lib/OpenLayers/Layer/WorldWind.js"></script>
+<script src="/lib/OpenLayers/Layer/ArcGIS93Rest.js"></script>
+<script src="/lib/OpenLayers/Layer/WMS.js"></script>
+<script src="/lib/OpenLayers/Layer/WMS/Untiled.js"></script>
+<script src="/lib/OpenLayers/Layer/WMS/Post.js"></script>
+<script src="/lib/OpenLayers/Layer/ArcIMS.js"></script>
+<script src="/lib/OpenLayers/Layer/GeoRSS.js"></script>
+<script src="/lib/OpenLayers/Layer/Boxes.js"></script>
+<script src="/lib/OpenLayers/Layer/XYZ.js"></script>
+<script src="/lib/OpenLayers/Layer/TMS.js"></script>
+<script src="/lib/OpenLayers/Layer/TileCache.js"></script>
+<script src="/lib/OpenLayers/Layer/Zoomify.js"></script>
+<script src="/lib/OpenLayers/Popup/Anchored.js"></script>
+<script src="/lib/OpenLayers/Popup/AnchoredBubble.js"></script>
+<script src="/lib/OpenLayers/Popup/Framed.js"></script>
+<script src="/lib/OpenLayers/Popup/FramedCloud.js"></script>
+<script src="/lib/OpenLayers/Feature.js"></script>
+<script src="/lib/OpenLayers/Feature/Vector.js"></script>
+<script src="/lib/OpenLayers/Feature/WFS.js"></script>
+<script src="/lib/OpenLayers/Handler.js"></script>
+<script src="/lib/OpenLayers/Handler/Click.js"></script>
+<script src="/lib/OpenLayers/Handler/Hover.js"></script>
+<script src="/lib/OpenLayers/Handler/Point.js"></script>
+<script src="/lib/OpenLayers/Handler/Path.js"></script>
+<script src="/lib/OpenLayers/Handler/Polygon.js"></script>
+<script src="/lib/OpenLayers/Handler/Feature.js"></script>
+<script src="/lib/OpenLayers/Handler/Drag.js"></script>
+<script src="/lib/OpenLayers/Handler/RegularPolygon.js"></script>
+<script src="/lib/OpenLayers/Handler/Box.js"></script>
+<script src="/lib/OpenLayers/Handler/MouseWheel.js"></script>
+<script src="/lib/OpenLayers/Handler/Keyboard.js"></script>
+<script src="/lib/OpenLayers/Control.js"></script>
+<script src="/lib/OpenLayers/Control/Attribution.js"></script>
+<script src="/lib/OpenLayers/Control/Button.js"></script>
+<script src="/lib/OpenLayers/Control/ZoomBox.js"></script>
+<script src="/lib/OpenLayers/Control/ZoomToMaxExtent.js"></script>
+<script src="/lib/OpenLayers/Control/DragPan.js"></script>
+<script src="/lib/OpenLayers/Control/Navigation.js"></script>
+<script src="/lib/OpenLayers/Control/MouseDefaults.js"></script>
+<script src="/lib/OpenLayers/Control/MousePosition.js"></script>
+<script src="/lib/OpenLayers/Control/OverviewMap.js"></script>
+<script src="/lib/OpenLayers/Control/KeyboardDefaults.js"></script>
+<script src="/lib/OpenLayers/Control/PanZoom.js"></script>
+<script src="/lib/OpenLayers/Control/PanZoomBar.js"></script>
+<script src="/lib/OpenLayers/Control/ArgParser.js"></script>
+<script src="/lib/OpenLayers/Control/Permalink.js"></script>
+<script src="/lib/OpenLayers/Control/Scale.js"></script>
+
+<script src="/lib/OpenLayers/Control/ScaleLine.js"></script>
+<script src="/lib/OpenLayers/Control/Snapping.js"></script>
+<script src="/lib/OpenLayers/Control/Split.js"></script>
+<script src="/lib/OpenLayers/Control/LayerSwitcher.js"></script>
+<script src="/lib/OpenLayers/Control/DrawFeature.js"></script>
+<script src="/lib/OpenLayers/Control/DragFeature.js"></script>
+<script src="/lib/OpenLayers/Control/ModifyFeature.js"></script>
+<script src="/lib/OpenLayers/Control/Panel.js"></script>
+<script src="/lib/OpenLayers/Control/SelectFeature.js"></script>
+<script src="/lib/OpenLayers/Control/NavigationHistory.js"></script>
+<script src="/lib/OpenLayers/Control/Measure.js"></script>
+<script src="/lib/OpenLayers/Control/WMSGetFeatureInfo.js"></script>
+<script src="/lib/OpenLayers/Control/Graticule.js"></script>
+<script src="/lib/OpenLayers/Control/TransformFeature.js"></script>
+<script src="/lib/OpenLayers/Geometry.js"></script>
+<script src="/lib/OpenLayers/Geometry/Rectangle.js"></script>
+<script src="/lib/OpenLayers/Geometry/Collection.js"></script>
+<script src="/lib/OpenLayers/Geometry/Point.js"></script>
+<script src="/lib/OpenLayers/Geometry/MultiPoint.js"></script>
+<script src="/lib/OpenLayers/Geometry/Curve.js"></script>
+<script src="/lib/OpenLayers/Geometry/LineString.js"></script>
+<script src="/lib/OpenLayers/Geometry/LinearRing.js"></script>  
+<script src="/lib/OpenLayers/Geometry/Polygon.js"></script>
+<script src="/lib/OpenLayers/Geometry/MultiLineString.js"></script>
+<script src="/lib/OpenLayers/Geometry/MultiPolygon.js"></script>
+<script src="/lib/OpenLayers/Geometry/Surface.js"></script>
+<script src="/lib/OpenLayers/Renderer.js"></script>
+<script src="/lib/OpenLayers/Renderer/Elements.js"></script>
+<script src="/lib/OpenLayers/Renderer/SVG.js"></script>
+<script src="/lib/OpenLayers/Renderer/Canvas.js"></script>
+<script src="/lib/OpenLayers/Renderer/VML.js"></script>
+<script src="/lib/OpenLayers/Layer/Vector.js"></script>
+<script src="/lib/OpenLayers/Layer/Vector/RootContainer.js"></script>
+<script src="/lib/OpenLayers/Strategy.js"></script>
+<script src="/lib/OpenLayers/Strategy/Fixed.js"></script>
+<script src="/lib/OpenLayers/Strategy/Cluster.js"></script>
+<script src="/lib/OpenLayers/Strategy/Paging.js"></script>
+<script src="/lib/OpenLayers/Strategy/BBOX.js"></script>
+<script src="/lib/OpenLayers/Strategy/Save.js"></script>
+<script src="/lib/OpenLayers/Strategy/Refresh.js"></script>
+<script src="/lib/OpenLayers/Filter.js"></script>
+<script src="/lib/OpenLayers/Filter/FeatureId.js"></script>
+<script src="/lib/OpenLayers/Filter/Logical.js"></script>
+<script src="/lib/OpenLayers/Filter/Comparison.js"></script>
+<script src="/lib/OpenLayers/Filter/Spatial.js"></script>
+<script src="/lib/OpenLayers/Protocol.js"></script>
+<script src="/lib/OpenLayers/Protocol/HTTP.js"></script>
+<script src="/lib/OpenLayers/Protocol/SQL.js"></script>
+<script src="/lib/OpenLayers/Protocol/SQL/Gears.js"></script>
+<script src="/lib/OpenLayers/Protocol/WFS.js"></script>
+<script src="/lib/OpenLayers/Protocol/WFS/v1.js"></script>
+<script src="/lib/OpenLayers/Protocol/WFS/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Protocol/WFS/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Protocol/SOS.js"></script>
+<script src="/lib/OpenLayers/Protocol/SOS/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Layer/PointTrack.js"></script>
+<script src="/lib/OpenLayers/Layer/GML.js"></script>
+<script src="/lib/OpenLayers/Style.js"></script>
+<script src="/lib/OpenLayers/StyleMap.js"></script>
+<script src="/lib/OpenLayers/Rule.js"></script>
+<script src="/lib/OpenLayers/Format.js"></script>
+<script src="/lib/OpenLayers/Format/XML.js"></script>
+<script src="/lib/OpenLayers/Format/ArcXML.js"></script>
+<script src="/lib/OpenLayers/Format/ArcXML/Features.js"></script>
+<script src="/lib/OpenLayers/Format/GML.js"></script>
+<script src="/lib/OpenLayers/Format/GML/Base.js"></script>
+<script src="/lib/OpenLayers/Format/GML/v2.js"></script>
+<script src="/lib/OpenLayers/Format/GML/v3.js"></script>
+<script src="/lib/OpenLayers/Format/Atom.js"></script>
+<script src="/lib/OpenLayers/Format/KML.js"></script>
+<script src="/lib/OpenLayers/Format/GeoRSS.js"></script>
+<script src="/lib/OpenLayers/Format/WFS.js"></script>
+<script src="/lib/OpenLayers/Format/WFSCapabilities.js"></script>
+<script src="/lib/OpenLayers/Format/WFSCapabilities/v1.js"></script>
+<script src="/lib/OpenLayers/Format/WFSCapabilities/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Format/WFSCapabilities/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Format/WFSDescribeFeatureType.js"></script>
+<script src="/lib/OpenLayers/Format/WMSDescribeLayer.js"></script>
+<script src="/lib/OpenLayers/Format/WMSDescribeLayer/v1_1.js"></script>
+<script src="/lib/OpenLayers/Format/WKT.js"></script>
+<script src="/lib/OpenLayers/Format/OSM.js"></script>
+<script src="/lib/OpenLayers/Format/GPX.js"></script>
+<script src="/lib/OpenLayers/Format/Filter.js"></script>
+<script src="/lib/OpenLayers/Format/Filter/v1.js"></script>
+<script src="/lib/OpenLayers/Format/Filter/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Format/Filter/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Format/SLD.js"></script>
+<script src="/lib/OpenLayers/Format/SLD/v1.js"></script>
+<script src="/lib/OpenLayers/Format/SLD/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Format/CSWGetDomain.js"></script>
+<script src="/lib/OpenLayers/Format/CSWGetDomain/v2_0_2.js"></script>
+<script src="/lib/OpenLayers/Format/CSWGetRecords.js"></script>
+<script src="/lib/OpenLayers/Format/CSWGetRecords/v2_0_2.js"></script>
+<script src="/lib/OpenLayers/Format/WFST.js"></script>
+<script src="/lib/OpenLayers/Format/WFST/v1.js"></script>
+<script src="/lib/OpenLayers/Format/WFST/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Format/WFST/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Format/Text.js"></script>
+<script src="/lib/OpenLayers/Format/JSON.js"></script>
+<script src="/lib/OpenLayers/Format/GeoJSON.js"></script>
+<script src="/lib/OpenLayers/Format/WMC.js"></script>
+<script src="/lib/OpenLayers/Format/WMC/v1.js"></script>
+<script src="/lib/OpenLayers/Format/WMC/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Format/WMC/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities/v1.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities/v1_1.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities/v1_1_1.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities/v1_3.js"></script>
+<script src="/lib/OpenLayers/Format/WMSCapabilities/v1_3_0.js"></script>
+<script src="/lib/OpenLayers/Format/WMSGetFeatureInfo.js"></script>
+<script src="/lib/OpenLayers/Format/OWSCommon/v1_1_0.js"></script>
+<script src="/lib/OpenLayers/Format/SOSCapabilities.js"></script>
+<script src="/lib/OpenLayers/Format/SOSCapabilities/v1_0_0.js"></script>
+<script src="/lib/OpenLayers/Format/SOSGetObservation.js"></script>
+<script src="/lib/OpenLayers/Format/SOSGetFeatureOfInterest.js"></script>
+<script src="/lib/OpenLayers/Layer/WFS.js"></script>
+<script src="/lib/OpenLayers/Control/GetFeature.js"></script>
+<script src="/lib/OpenLayers/Control/MouseToolbar.js"></script>
+<script src="/lib/OpenLayers/Control/NavToolbar.js"></script>
+<script src="/lib/OpenLayers/Control/PanPanel.js"></script>
+<script src="/lib/OpenLayers/Control/Pan.js"></script>
+<script src="/lib/OpenLayers/Control/ZoomIn.js"></script>
+<script src="/lib/OpenLayers/Control/ZoomOut.js"></script>
+<script src="/lib/OpenLayers/Control/ZoomPanel.js"></script>
+<script src="/lib/OpenLayers/Control/EditingToolbar.js"></script>
+<script src="/lib/OpenLayers/Lang.js"></script>
+<script src="/lib/OpenLayers/Lang/en.js"></script>
+
+    <script src="/lib/mpdb/Extend.js"></script>
+
+
+    <script type="text/javascript">
+    var m_url = "";
+	var map = null;
+	var div = "map";
+
+
+    </script>
+
+  </head>
+  <body onload="">
+	<div class="container">
+	
+		<iframe name="dl" style="display:none;"></iframe>
+
+
+			<output id="list"></output>
+
+		</div>
+		<div style="width:100%">
+			<div id="map_nav"></div>
+		</div>
+		<div id="map" style="position:relative;;">		    
+		
+
+		</div>
+		
+		</div>
+		</center>
+	</div>
+
+    <script src="/lib/mpdb/ImageMap.js"></script>
+    <script src="/lib/OpenLayers/Layer/PointGrid.js"></script>
+    <script src="/lib/OpenLayers/Control/KeyboardNudge.js"></script>
+    <script src="/lib/mpdb/Helpers.js"></script>
+
+  <script>
+  		       map = new ImageMap(div, "Base Layer", null, 768, {height: 911})
+		       ImageMap.map = map;
+		       
+
+
+
+  </script>
+
+
+  </body>
+</html>

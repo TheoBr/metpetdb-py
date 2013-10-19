@@ -1,0 +1,14 @@
+K 13
+svn:eol-style
+V 6
+native
+K 12
+svn:keywords
+V 11
+Id Revision
+K 13
+svn:mergeinfo
+V 142
+/sandbox/roberthl/openlayers/lib/OpenLayers/Control/GetFeature.js:9745-9748
+/trunk/openlayers/lib/OpenLayers/Control/GetFeature.js:10187-10216
+END

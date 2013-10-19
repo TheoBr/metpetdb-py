@@ -1,0 +1,58 @@
+        tr.selected {background-color:GoldenRod}
+
+        p.caption {
+            width: 512px;
+        }
+        
+        #map {
+	        width: 580px;
+	        height:580px;
+        }
+        .olControlScaleLine {
+    background: white;
+    padding: 10px;
+}
+
+#scaleline-id {
+    margin: 10px;
+    font-size: xx-small;
+}
+
+    #controls {
+        position: absolute;
+        bottom: 1em;
+        left: 100px;
+        width: 400px;
+        z-index: 20000;
+        padding: 0 0.5em 0.5em 0.5em;
+    }
+    
+    .addImageButtonItemActive, .addImageButtonItemInactive {
+	    background: url('../img/layer-switcher-maximize.png') no-repeat  !important;
+
+    }
+    .resizeImageButtonItemActive, .resizeImageButtonItemInactive {
+	    background: url('../img/resize.png') no-repeat !important;
+
+    }
+    
+    .resizeImageButtonItemActive, .addImageButtonItemActive{
+	    border:1px solid yellow;
+    }
+
+    #controlToggle {
+        padding-left: 1em;
+    }
+
+    #controlToggle li {
+        list-style: none;
+    }
+
+    #form {
+        position: absolute;
+        bottom: 1em;
+        left: 400px;
+        width: 200px;
+        z-index: 20000;
+        padding: 0 0.5em 0.5em 0.5em;
+    }

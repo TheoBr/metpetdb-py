@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/!svn/ver/10146/branches/openlayers/2.9/lib/OpenLayers/Popup
+END
+FramedCloud.js
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/10146/branches/openlayers/2.9/lib/OpenLayers/Popup/FramedCloud.js
+END
+Framed.js
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/10146/branches/openlayers/2.9/lib/OpenLayers/Popup/Framed.js
+END
+AnchoredBubble.js
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/10146/branches/openlayers/2.9/lib/OpenLayers/Popup/AnchoredBubble.js
+END
+Anchored.js
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/10146/branches/openlayers/2.9/lib/OpenLayers/Popup/Anchored.js
+END

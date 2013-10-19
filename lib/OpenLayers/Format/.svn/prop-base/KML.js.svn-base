@@ -1,0 +1,10 @@
+K 13
+svn:eol-style
+V 6
+native
+K 13
+svn:mergeinfo
+V 126
+/sandbox/roberthl/openlayers/lib/OpenLayers/Format/KML.js:9745-9748
+/trunk/openlayers/lib/OpenLayers/Format/KML.js:10187-10200
+END

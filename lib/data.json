@@ -1,0 +1,6 @@
+{
+	"0423b2c9fa30c380922438326f82c1b53fbf071bf2076889c6": [{"pointnumber": 51, "type": "Photomicrograph-Transmitted Crossed Polars", "id": 37740,"data":"rocks and stuff"}, {"pointnumber": 55,"type": "Other-Transmitted Crossed Polars", "id": 37741,"data":"rocks and stuff and other stuff too"}],
+	"0420d500b17972d92688578960fa96090bb79455e32245fdf9": [{"pointnumber": 53, "type": "Transmitted Crossed Polars", "id": 37743,"data":"rocks and stuff"}],
+	"*" : [{"pointnumber": 64, "method": "EMP", "material": "Plagioclase", "data": "blah blah blah"},{"pointnumber": 62, "method":"EMP", "material": "Garnet", "data": "blah blah"}]
+	
+}
