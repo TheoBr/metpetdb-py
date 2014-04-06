@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.resources import ModelResource
@@ -8,9 +8,28 @@ from tastypie.validation import Validation
 from tastypie.authorization import Authorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.exceptions import Unauthorized, InvalidFilterError, ImmediateHttpResponse
-from . import models, auth
+
+from .models import User, Sample, MetamorphicGrade, MetamorphicRegion, Region,\
+                    RockType, Subsample, SubsampleType, Mineral, Reference, \
+                    ChemicalAnalyses, SampleRegion, SampleReference, \
+                    SampleMineral, SampleMetamorphicGrade, \
+                    SampleMetamorphicRegion
+from . import auth
+from . import utils
+import logging
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 PREFIX_STRING = '_extra_filter_prefixes'
+
+CLASS_MAPPING = {'regions': SampleRegion,
+                 'region_class': Region,
+                 'references': SampleReference,
+                 'reference_class': Reference,
+                 'minerals': SampleMineral,
+                 'metamorphic_grades': SampleMetamorphicGrade,
+                 'metamorphic_regions': SampleMetamorphicRegion}
 
 class BaseResource(ModelResource):
     @transaction.commit_manually
@@ -57,13 +76,16 @@ class VersionValidation(Validation):
                 return {'__all__': 'Cannot find previous version (use POST to create).'}
             elif 'version' in bundle.data and bundle.data['version'] != 0:
                 # A version of 0 will be incremented to 1 during hydration
-                return {'version': 'This should be 0 or absent.'}
+                # FIXME: Is this needed? Version is already set to 1 by the
+                # time we come here.
+                # return {'version': 'This should be 0 or absent.'}
+                pass
         else:
             if request is not None and request.method == 'POST':
                 return {'__all__': 'That object already exists (use PUT to update).'}
             elif 'version' not in bundle.data:
                 return {'__all__': 'Data corrupted (version number missing).'}
-            elif bundle.data['version'] != previous.version:
+            elif bundle.data['version'] != previous.version + 1:
                 return {'version': 'Edit conflict (object has changed since last GET).'}
         return {}
 
@@ -93,7 +115,7 @@ def _check_perm_closure(permission_lambda):
 
 class ObjectAuthorization(Authorization):
     """Tastypie custom Authorization class.
-    
+
     Provides row-level CRUD permissions."""
     def __init__(self, app_name, model_name, *args, **kwargs):
         """Store some information which we'll need later."""
@@ -110,21 +132,27 @@ class ObjectAuthorization(Authorization):
     read_detail = _check_perm_closure(lambda self: self.read_perm)
     def create_list(self, object_list, bundle):
         """Check object_list to make sure new objects are owned by us."""
+        logger.info("Received list of objects to create")
         if not bundle.request.user.has_perm(self.add_perm):
+            logger.warning("User is not verified.")
             raise Unauthorized("User {} is not manually verified."
                                .format(bundle.request.user))
         result = []
         for item in object_list:
             if item.owner == bundle.request.user:
                 result.append(item)
+            else:
+                logger.warning("User must own created object.")
         return result
     def create_detail(self, object_list, bundle):
         """Check bundle.obj to make sure it is owned by us."""
         user = bundle.request.user
-        if bundle.obj.owner == user and user.has_perm(self.add_perm):
+        logger.info("Received single object to create")
+        if bundle.obj.user.django_user == user and user.has_perm(self.add_perm):
             return True
         else:
-            raise Unauthorized()
+            logger.warning("User must own created object.")
+            raise Unauthorized("User must own created object.")
     update_list = _filter_by_permission_closure(lambda self: self.change_perm)
     update_detail = _check_perm_closure(lambda self: self.change_perm)
     delete_list = _filter_by_permission_closure(lambda self: self.change_perm)
@@ -144,7 +172,7 @@ class FirstOrderResource(ModelResource):
 
         This makes a list of all filters which involve related fields and
         attaches that list to the set of ORM filters.  It will then be used
-        by apply_filters to 
+        by apply_filters to
         """
         extra_filter_prefixes = []
         if filters is None:
@@ -270,54 +298,182 @@ class FirstOrderResource(ModelResource):
                 except ImmediateHttpResponse:
                     # We don't have permission, remove it
                     value.remove(item)
+                except AttributeError:
+                    # ToOne field is empty; abort
+                    continue
             if value is not bundle.data[field_name] and not value:
                 # For ToOne fields: value was a singleton, and now it's empty,
                 # so null out the corresponding entry in bundle.data
                 bundle.data[field_name] = None
         return bundle
 
+class UserResource(BaseResource):
+    class Meta:
+        queryset = User.objects.all()
+        authorization = Authorization()
+        authentication = ApiKeyAuthentication()
+        excludes = ['password', 'confirmation_code']
+
 class SampleResource(VersionedResource, FirstOrderResource):
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
     rock_type = fields.ToOneField("tastyapi.resources.RockTypeResource",
                                   "rock_type")
+    minerals = fields.ToManyField("tastyapi.resources.MineralResource",
+                                  "minerals")
+    metamorphic_grades = fields.ToManyField(
+                                "tastyapi.resources.MetamorphicGradeResource",
+                                "metamorphic_grades")
+    metamorphic_regions = fields.ToManyField(
+                                "tastyapi.resources.MetamorphicRegionResource",
+                                "metamorphic_regions")
+    regions = fields.ToManyField("tastyapi.resources.RegionResource",
+                                 "regions", null=True)
+    references = fields.ToManyField("tastyapi.resources.ReferenceResource",
+                                    "references", null=True)
+
     class Meta:
-        queryset = models.Sample.objects.all()
-        authorization = ObjectAuthorization()
+        queryset = Sample.objects.all()
+        allowed_methods = ['get', 'post', 'put', 'delete']
         authentication = ApiKeyAuthentication()
-        excludes = ['user', 'collector', 'location']
+        authorization = ObjectAuthorization('tastyapi', 'sample')
+        excludes = ['user', 'collector']
         filtering = {
                 'version': ALL,
                 'sesar_number': ALL,
                 'public_data': ALL,
                 'collection_date': ALL,
                 'rock_type': ALL_WITH_RELATIONS,
+                'regions': ALL_WITH_RELATIONS,
                 }
-        validation = VersionValidation(queryset, 'id')
+        validation = VersionValidation(queryset, 'sample_id')
+
+    def obj_create(self, bundle, **kwargs):
+        """ Save free-text fields: regions and references.
+
+        Regions and references are free-text fields so when you get either of
+        these in the request, check if a particular region/reference exists in
+        the database, create a new object if it doesn't exist yet, and then
+        create a record in the intermediate "through" table.
+        """
+
+        """ Remove free-text fields "regions" and "references" from the bundle
+        and save them for later, so that Tastypie doesn't try to save them
+        on its own and fail"""
+        free_text_fields = {'regions': bundle.data.pop('regions'),
+                           'references': bundle.data.pop('references')}
+        super(SampleResource, self).obj_create(bundle, **kwargs)
+        sample = Sample.objects.get(pk=bundle.obj.sample_id)
+
+        for field_name, entries in free_text_fields.iteritems():
+            for entry in entries:
+                obj_class = CLASS_MAPPING[field_name[:-1] + "_class"]
+
+                try:
+                    obj = obj_class.objects.get(name=entry)
+                except ObjectDoesNotExist:
+                    id = utils.get_next_id(CLASS_MAPPING[field_name[:-1] +
+                                                                     "_class"])
+                    obj_args = {field_name[:-1] + "_id": id, 'name': entry}
+                    obj = obj_class.objects.create( **obj_args )
+
+                obj_args = {'id': utils.get_next_id(CLASS_MAPPING[field_name]),
+                            'sample': sample,
+                            field_name[:-1]: obj}
+
+                try: CLASS_MAPPING[field_name].objects.get_or_create(**obj_args)
+                except IntegrityError: continue
+
+    def save_m2m(self, bundle):
+        for field_name, field_object in self.fields.items():
+            if not getattr(field_object, 'is_m2m', False):
+                continue
+
+            if not field_object.attribute:
+                continue
+
+            if field_object.readonly:
+                continue
+
+            """This will get or create a new record for each M2M record passed
+               in the request. The CLASS_MAPPING global variable defined at
+               the top specifies which classes are currently accepted."""
+            for field in bundle.data[field_name]:
+                sample = Sample.objects.get(pk=bundle.obj.sample_id)
+
+                obj_args = {'id': utils.get_next_id(CLASS_MAPPING[field_name]),
+                            'sample': sample,
+                            field_name[:-1]: field.obj}
+
+                try: CLASS_MAPPING[field_name].objects.get_or_create(**obj_args)
+                except IntegrityError: continue
+
+
+class RegionResource(BaseResource):
+    class Meta:
+        queryset = Region.objects.all()
+        authentication = ApiKeyAuthentication()
+        allowed_methods = ['get']
+        resource_name = "region"
+        filtering = { 'region': ALL }
 
 class RockTypeResource(BaseResource):
     samples = fields.ToManyField(SampleResource, "sample_set")
     class Meta:
         resource_name = "rock_type"
-        queryset = models.RockType.objects.all()
         authentication = ApiKeyAuthentication()
+        queryset = RockType.objects.all()
+        allowed_methods = ['get', 'post', 'put']
+        filtering = { 'rock_type': ALL }
+
+class MineralResource(BaseResource):
+    real_mineral = fields.ToOneField('tastyapi.resources.MineralResource',
+                                     'real_mineral')
+    # analyses = fields.ToManyField('tastyapi.resources.ChemicalAnalysisResource',
+    #                               'chemicalanalysis_set')
+    class Meta:
+        resource_name = 'mineral'
+        queryset = Mineral.objects.all()
+        authentication = ApiKeyAuthentication()
+        allowed_methods = ['get']
         filtering = {
-                'rock_type': ALL,
+                'name': ALL,
+                'real_mineral': ALL_WITH_RELATIONS,
                 }
 
+class MetamorphicGradeResource(BaseResource):
+    class Meta:
+        resource_name = "metamorphic_grade"
+        authentication = ApiKeyAuthentication()
+        queryset = MetamorphicGrade.objects.all()
+        allowed_methods = ['get']
+        filtering = { 'name': ALL }
+
+class MetamorphicRegionResource(BaseResource):
+    class Meta:
+        resource_name = "metamorphic_region"
+        authentication = ApiKeyAuthentication()
+        queryset = MetamorphicRegion.objects.all()
+        allowed_methods = ['get']
+        filtering = { 'name': ALL }
+
 class SubsampleTypeResource(BaseResource):
-    subsamples = fields.ToManyField("tastyapi.resources.SubsampleResource",
-                                 "subsample_set")
+    # subsamples = fields.ToManyField("tastyapi.resources.SubsampleResource",
+    #                              "subsample_set")
     class Meta:
         resource_name = 'subsample_type'
-        queryset = models.SubsampleType.objects.all()
+        allowed_methods = ['get']
+        queryset = SubsampleType.objects.all()
         authentication = ApiKeyAuthentication()
         filtering = {'subsample_type': ALL}
 
 class SubsampleResource(VersionedResource, FirstOrderResource):
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
     sample = fields.ToOneField(SampleResource, "sample")
     subsample_type = fields.ToOneField(SubsampleTypeResource, "subsample_type")
     class Meta:
-        queryset = models.Subsample.objects.all()
+        queryset = Subsample.objects.all()
         excludes = ['user']
+        allowed_methods = ['get', 'post', 'put', 'delete']
         authorization = ObjectAuthorization('tastyapi', 'subsample')
         authentication = ApiKeyAuthentication()
         filtering = {
@@ -329,37 +485,28 @@ class SubsampleResource(VersionedResource, FirstOrderResource):
         validation = VersionValidation(queryset, 'subsample_id')
 
 
-class MineralResource(BaseResource):
-    real_mineral = fields.ToOneField('tastyapi.resources.MineralResource',
-                                     'real_mineral')
-    analyses = fields.ToManyField('tastyapi.resources.ChemicalAnalysisResource',
-                                  'chemicalanalysis_set')
-    class Meta:
-        queryset = models.Mineral.objects.all()
-        authentication = ApiKeyAuthentication()
-        filtering = {
-                'name': ALL,
-                'real_mineral': ALL_WITH_RELATIONS,
-                }
-
-
 class ReferenceResource(BaseResource):
-    analyses = fields.ToManyField('tastyapi.resources.ChemicalAnalysisResource',
-                                    'chemicalanalysis_set')
+    # analyses = fields.ToManyField('tastyapi.resources.ChemicalAnalysisResource',
+    #                                 'chemicalanalysis_set')
     class Meta:
-        queryset = models.Reference.objects.all()
+        resource_name = 'reference'
+        queryset = Reference.objects.all()
+        allowed_methods = ['get']
         authentication = ApiKeyAuthentication()
+        # authorization = ObjectAuthorization('tastyapi', 'reference')
         filtering = {'name': ALL}
 
 class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
     subsample = fields.ToOneField(SubsampleResource, "subsample")
     reference = fields.ToOneField(ReferenceResource, "reference", null=True)
     mineral = fields.ToOneField(MineralResource, "mineral", null=True)
     class Meta:
+        queryset = ChemicalAnalyses.objects.all()
         resource_name = 'chemical_analysis'
-        queryset = models.ChemicalAnalysis.objects.all()
+        allowed_methods = ['get', 'post', 'put', 'delete']
         excludes = ['image', 'user']
-        authorization = ObjectAuthorization('tastyapi', 'chemical_analysis')
+        authorization = ObjectAuthorization('tastyapi', 'chemicalanalyses')
         authentication = ApiKeyAuthentication()
         filtering = {
                 'subsample': ALL_WITH_RELATIONS,
@@ -377,4 +524,3 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
                 'total': ALL,
                 }
         validation = VersionValidation(queryset, 'chemical_analysis_id')
-

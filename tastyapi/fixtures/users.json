@@ -1,0 +1,35 @@
+[
+    {
+        "pk": 1,
+        "model": "tastyapi.User",
+        "fields": {
+            "version": 1,
+            "name": "Sibel Adali",
+            "password": "pbkdf2_sha256$10000$OWeP2luptmuK$7eE7M3/Cdy70ki4bPGOZtCqkhjNkJdDTDFuhj8aDU6g=",
+            "email": "sibel@cs.rpi.edu",
+            "django_user": 1
+        }
+    },
+    {
+        "pk": 2,
+        "model": "tastyapi.User",
+        "fields": {
+            "version": 1,
+            "name": "John Doe",
+            "password": "pbkdf2_sha256$10000$OWeP2luptmuK$7eE7M3/Cdy70ki4bPGOZtCqkhjNkJdDTDFuhj8aDU6g=",
+            "email": "john@doe.com",
+            "django_user": 2
+        }
+    },
+    {
+        "pk": 3,
+        "model": "tastyapi.User",
+        "fields": {
+            "version": 1,
+            "name": "Jane Doe",
+            "password": "pbkdf2_sha256$10000$OWeP2luptmuK$7eE7M3/Cdy70ki4bPGOZtCqkhjNkJdDTDFuhj8aDU6g=",
+            "email": "jane@doe.com",
+            "django_user": 3
+        }
+    }
+]
