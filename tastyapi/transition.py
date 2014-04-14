@@ -7,11 +7,12 @@ from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth.models import Group
 from django.db import transaction
 
-from .models import get_public_groups
-from .models import User as MetpetUser
-from .models import Group, GroupExtra, GroupAccess
-from .models import Sample, Image
-from .models import Subsample, ChemicalAnalysis, Grids
+from tastypie.models import ApiKey
+from tastyapi.models import get_public_groups
+from tastyapi.models import User as MetpetUser
+from tastyapi.models import Group, GroupExtra, GroupAccess
+from tastyapi.models import Sample, Image
+from tastyapi.models import Subsample, ChemicalAnalyses, Grid
 
 def translate(raw_crypt):
     """Translates a metpetdb salted password into a Django salted password."""
@@ -31,11 +32,11 @@ def translate(raw_crypt):
 @transaction.commit_on_success
 def main():
     """Imports metpetdb's various tables into Django for auth purposes.
-    
+
     BEFORE RUNNING THIS SCRIPT, execute the following SQL:
 
         ALTER TABLE users ADD COLUMN django_user_id int UNIQUE REFERENCES
-        auth_user(id); 
+        auth_user(id);
 
     This function is idempotent, but shouldn't need to be run multiple times.
     """
@@ -44,7 +45,7 @@ def main():
         email = metpet_user.email
         logger.debug("Email = %s", email)
         # Use the email for the username, but strip out disallowed characters
-        # and cap total length at 30 characters to comply with Django's 
+        # and cap total length at 30 characters to comply with Django's
         # requirements:
         username = ''.join(c for c in email if c.isalnum() or c in ['_', '@',
                                                                     '+', '.',
@@ -58,7 +59,9 @@ def main():
         result = AuthUser(username=username, password=password, email=email,
                           is_staff=False, is_active=True, is_superuser=False)
         result.save()
+        ApiKey.objects.create(user=result)
         metpet_user.django_user = result
+        metpet_user.password = password
         metpet_user.save()
         if metpet_user.enabled.upper() == 'Y':
             # Add user to public group(s), so (s)he can read public things
@@ -70,12 +73,12 @@ def main():
             metpet_user.manual_verify()
         metpet_user.save()
     models_with_owners = [Sample, Image]
-    models_with_public_data = [Sample, Image, Subsample, ChemicalAnalysis, Grids]
+    models_with_public_data = [Sample, Image, Subsample, ChemicalAnalyses, Grid]
     public_groups = get_public_groups()
     for Model in models_with_owners:
         ctype = ContentType.objects.get_for_model(Model)
         for item in Model.objects.all():
-            owner = item.owner
+            owner = item.user
             owner_django = owner.django_user
             try:
                 owner_group = Group.objects.get(groupextra__owner=owner_django,
@@ -98,3 +101,6 @@ def main():
                     continue # Object is already in this group
                 GroupAccess(group=group, content_type=ctype, object_id=item.pk,
                             read_access=True, write_access=False).save()
+
+if __name__ == "__main__":
+    main()

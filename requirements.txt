@@ -1,5 +1,4 @@
-Django==1.4.2
-South==0.8.4
+git+git://github.com/kristallizer/django-1.4.2.git
 argparse==1.2.1
 constants==0.6.0
 django-devserver==0.7.0

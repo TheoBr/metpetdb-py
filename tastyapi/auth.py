@@ -117,8 +117,8 @@ def get_read_queryset(user, prefix=None):
         return Q()
     if prefix: # NB: if prefix == "", go to else
         # Prepend a prefix
-        result_dict = {"__".join(prefix, "groupaccess__read_access"): True,
-                       "__".join(prefix, "groupaccess__group__user"): user}
+        result_dict = {"__".join(prefix, "group_access__read_access"): True,
+                       "__".join(prefix, "group_access__group__user"): user}
         return Q(**result_dict)
     else:
-        return Q(groupaccess__read_access=True, groupaccess__group__user=user)
+        return Q(group_access__read_access=True, group_access__group__user=user)

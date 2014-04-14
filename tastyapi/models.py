@@ -17,7 +17,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.gis.db.models import GeoManager, PolygonField, PointField,\
                                          GeometryField
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.db import models as DjangoModels
@@ -136,6 +136,18 @@ def fix_public(sender, instance, created, **kwargs):
                                         object_id=instance.pk).delete()
             except: continue
 
+@receiver(post_delete)
+def delete_group_access(sender, instance, using, **kwargs):
+    if sender in [Sample, Subsample, ChemicalAnalyses]:
+        ctype = ContentType.objects.get_for_model(instance)
+        group_id = instance.user.django_user.groups.filter(
+                     name__endswith=instance.user.django_user.username)[0].id
+        try:
+            GroupAccess.objects.get(group_id=group_id,
+                                    content_type=ctype,
+                                    object_id=instance.pk).delete()
+        except: pass
+
 class BinaryField(Field):
     description = 'A sequence of bytes'
     def db_type(self, connection):
@@ -235,6 +247,7 @@ class User(models.Model):
                        group_type='u_uid',
                        owner=self.django_user).save()
     class Meta:
+        # managed = False
         db_table = 'users'
 
 
@@ -242,6 +255,7 @@ class UsersRole(models.Model): #needs primary ID?
     user_id = models.IntegerField()
     role_id = models.SmallIntegerField()
     class Meta:
+        # managed = False
         db_table = 'users_roles'
 
 class ImageType(models.Model):
@@ -251,6 +265,7 @@ class ImageType(models.Model):
     comments = models.CharField(max_length=250, blank=True)
     class Meta:
         db_table = 'image_type'
+        # managed = False
 
 
 class Georeference(models.Model):
@@ -266,6 +281,7 @@ class Georeference(models.Model):
     doi = models.TextField(blank=True)
     publication_year = models.TextField(blank=True)
     class Meta:
+        # managed = False
         db_table = 'georeference'
 
 
@@ -273,6 +289,7 @@ class ImageFormat(models.Model):
     image_format_id = models.SmallIntegerField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
     class Meta:
+        # managed = False
         db_table = 'image_format'
 
 
@@ -302,6 +319,7 @@ class MineralType(models.Model):
     mineral_type_id = models.SmallIntegerField(primary_key=True)
     name = models.CharField(max_length=50)
     class Meta:
+        # managed = False
         db_table = 'mineral_types'
 
 
@@ -324,6 +342,7 @@ class Reference(models.Model):
     class Meta:
         # managed = False
         db_table = u'reference'
+        permissions = (('read_reference', 'Can read reference'),)
 
 class Region(models.Model):
     region_id = models.SmallIntegerField(primary_key=True)
@@ -349,6 +368,7 @@ class Role(models.Model):
     role_name = models.CharField(max_length=50)
     rank = models.SmallIntegerField(null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'roles'
 
 
@@ -359,12 +379,14 @@ class SpatialRefSys(models.Model):
     srtext = models.CharField(max_length=2048, blank=True)
     proj4text = models.CharField(max_length=2048, blank=True)
     class Meta:
+        # managed = False
         db_table = 'spatial_ref_sys'
 
 class SubsampleType(models.Model):
     subsample_type_id = models.SmallIntegerField(primary_key=True)
     subsample_type = models.CharField(max_length=100, unique=True)
     class Meta:
+        # managed = False
         db_table = 'subsample_type'
 
 
@@ -372,6 +394,7 @@ class AdminUser(models.Model):
     admin_id = models.IntegerField(primary_key=True)
     user = models.ForeignKey('User')
     class Meta:
+        # managed = False
         db_table = 'admin_users'
 
 class Element(models.Model):
@@ -383,6 +406,7 @@ class Element(models.Model):
     weight = models.FloatField(null=True, blank=True)
     order_id = models.IntegerField(null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'elements'
 
 
@@ -391,6 +415,7 @@ class ElementMineralType(models.Model):
     mineral_type = models.ForeignKey(MineralType)
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'element_mineral_types'
 
 
@@ -399,6 +424,7 @@ class ImageReference(models.Model):
     reference = models.ForeignKey('Reference')
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'image_reference'
 
 
@@ -412,6 +438,7 @@ class Oxide(models.Model):
     conversion_factor = models.FloatField()
     order_id = models.IntegerField(null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'oxides'
 
 
@@ -420,6 +447,7 @@ class OxideMineralType(models.Model):
     mineral_type = models.ForeignKey(MineralType)
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'oxide_mineral_types'
 
 class Project(models.Model):
@@ -430,6 +458,7 @@ class Project(models.Model):
     description = models.CharField(max_length=300, blank=True)
     isactive = models.CharField(max_length=1, blank=True)
     class Meta:
+        # managed = False
         db_table = 'projects'
 
 
@@ -446,13 +475,11 @@ class Sample(models.Model):
     date_precision = models.SmallIntegerField(null=True, blank=True)
     number = models.CharField(max_length=35)
     rock_type = models.ForeignKey(RockType)
-    user = models.ForeignKey('User', related_name='+')
+    user = models.ForeignKey(User, related_name='+')
     location_error = models.FloatField(null=True, blank=True)
     country = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
     collector_name = models.CharField(max_length=50, blank=True)
-    collector = models.ForeignKey('User', related_name='+', null=True,
-                                  db_column='collector_id', blank=True)
     location_text = models.CharField(max_length=50, blank=True)
     location = models.PointField()
     objects = models.GeoManager()
@@ -556,6 +583,7 @@ class Subsample(models.Model):
     def __unicode__(self):
         return u'Subsample #' + unicode(self.subsample_id)
     class Meta:
+        # managed = False
         db_table = 'subsamples'
         get_latest_by = 'subsample_id'
         permissions = (('read_subsample', 'Can read subsample'),)
@@ -573,6 +601,7 @@ class Grid(models.Model):
     height = models.SmallIntegerField()
     public_data = models.CharField(max_length=1)
     class Meta:
+        # managed = False
         db_table = 'grids'
 
 
@@ -599,7 +628,10 @@ class ChemicalAnalyses(models.Model):
     total = models.FloatField(null=True, blank=True)
     spot_id = models.BigIntegerField()
     group_access = generic.GenericRelation(GroupAccess)
+    def __unicode__(self):
+        return u'ChemicalAnalysis #' + unicode(self.chemical_analysis_id)
     class Meta:
+        # managed = False
         db_table = 'chemical_analyses'
         get_latest_by = 'chemical_analysis_id'
         permissions = (('read_chemicalanalyses',
@@ -622,6 +654,7 @@ class ChemicalAnalysisElement(models.Model):
     max_amount = models.FloatField(null=True, blank=True)
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'chemical_analysis_elements'
 
 class ChemicalAnalysisOxide(models.Model):
@@ -635,6 +668,7 @@ class ChemicalAnalysisOxide(models.Model):
     max_amount = models.FloatField(null=True, blank=True)
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'chemical_analysis_oxides'
 
 
@@ -658,6 +692,8 @@ class Image(models.Model):
     checksum_half = models.CharField(max_length=50)
     filename = models.CharField(max_length=256)
     checksum_mobile = models.CharField(max_length=50, blank=True)
+    def __unicode__(self):
+        return u'Image #' + unicode(self.image_id)
     class Meta:
         # managed = False
         db_table = u'images'
@@ -671,6 +707,7 @@ class ImageComment(models.Model):
     comment_text = models.TextField()
     version = models.IntegerField()
     class Meta:
+        # managed = False
         db_table = 'image_comments'
 
 
@@ -691,6 +728,7 @@ class ImageOnGrid(models.Model):
     locked = models.CharField(max_length=1)
     angle = models.FloatField(null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'image_on_grid'
 
 
@@ -702,6 +740,7 @@ class ProjectInvite(models.Model):
     action_timestamp = models.DateTimeField()
     status = models.CharField(max_length=32, blank=True)
     class Meta:
+        # managed = False
         db_table = 'project_invites'
 
 class ProjectMember(models.Model):
@@ -709,6 +748,7 @@ class ProjectMember(models.Model):
     user = models.ForeignKey('User')
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'project_members'
 
 class ProjectSample(models.Model):
@@ -716,6 +756,7 @@ class ProjectSample(models.Model):
     sample = models.ForeignKey('Sample')
     id = models.IntegerField(primary_key=True)
     class Meta:
+        # managed = False
         db_table = 'project_samples'
 
 
@@ -726,6 +767,7 @@ class SampleComment(models.Model):
     comment_text = models.TextField()
     date_added = models.DateTimeField(null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'sample_comments'
 
 
@@ -736,6 +778,7 @@ class UploadedFile(models.Model):
     time = models.DateTimeField()
     user = models.ForeignKey('User', null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'uploaded_files'
 
 
@@ -746,4 +789,5 @@ class XrayImage(models.Model):
     current = models.SmallIntegerField(null=True, blank=True)
     voltage = models.SmallIntegerField(null=True, blank=True)
     class Meta:
+        # managed = False
         db_table = 'xray_image'

@@ -141,11 +141,13 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
     def test_user_can_delete_own_chemical_analysis(self):
         credentials = self.get_credentials()
         nt.assert_equal(ChemicalAnalyses.objects.count(), 2)
+        nt.assert_equal(GroupAccess.objects.count(), 7)
         resp = client.delete('/tastyapi/v1/chemical_analysis/1/',
                               authentication=credentials,
                               format='json')
         self.assertHttpAccepted(resp)
         nt.assert_equal(ChemicalAnalyses.objects.count(), 1)
+        nt.assert_equal(GroupAccess.objects.count(), 5)
 
     def test_user_cannot_delete_unowned_chemical_analysis(self):
         credentials = self.get_credentials(user_id=2)

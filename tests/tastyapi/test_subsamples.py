@@ -155,10 +155,12 @@ class SubsampleResourceUpdateDeleteTest(TestSetUp):
     def test_user_can_delete_own_subsample(self):
         credentials = self.get_credentials()
         nt.assert_equal(Subsample.objects.count(), 1)
+        nt.assert_equal(GroupAccess.objects.count(), 4)
         resp = client.delete('/tastyapi/v1/subsample/1/',
                              authentication=credentials, format='json')
         self.assertHttpAccepted(resp)
         nt.assert_equal(Subsample.objects.count(), 0)
+        nt.assert_equal(GroupAccess.objects.count(), 2)
 
     def test_user_cannot_delete_unowned_subsample(self):
         credentials = self.get_credentials(user_id=2)
@@ -190,7 +192,7 @@ class SubsampleResourceUpdateDeleteTest(TestSetUp):
     def test_user_cannot_update_unowned_subsample(self):
         credentials = self.get_credentials()
         subsample = self.deserialize(client.get('/tastyapi/v1/subsample/1/',
-                                                authentication=credentials, 
+                                                authentication=credentials,
                                                 format='json'))
         nt.assert_equal("Subby", subsample['name'])
         subsample['name'] = "Updated by a test case"
