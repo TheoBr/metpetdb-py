@@ -182,6 +182,35 @@ COPY auth_permission (id, name, content_type_id, codename) FROM stdin;
 165	Can add xray image	55	add_xrayimage
 166	Can change xray image	55	change_xrayimage
 167	Can delete xray image	55	delete_xrayimage
+168 Can read user 13 read_user
+169 Can read image type 15 read_imagetype
+170 Can read metamorphic grade 18 read_metamorphicgrade
+171 Can read metamorphic region 19 read_metamorphicregion
+172 Can read mineral type 20 read_mineraltype
+173 Can read mineral 21 read_mineral
+174 Can read reference 22 read_reference
+175 Can read region 23 read_region
+176 Can read rock type 24 read_rocktype
+177 Can read subsample type 27 read_subsampletype
+178 Can read element 29 read_element
+179 Can read element mineral type 30 read_elementmineraltype
+180 Can read image reference 31 read_imagereference
+181 Can read oxide 32 read_oxide
+182 Can read oxide mineral type 33 read_oxidemineraltype
+183 Can read sample metamorphic grade 36 read_samplemetamorphicgrade
+184 Can read sample metamorphic region 37 read_samplemetamorphicregion
+185 Can read sample mineral 38 read_samplemineral
+186 Can read sample reference 39 read_samplereference
+187 Can read sample region 40 read_sampleregion
+188 Can read sample aliase 41 read_samplealiase
+189 Can read subsample 42 read_subsample
+190 Can read grid 43 read_grid
+191 Can read chemical analyses 44 read_chemicalanalyses
+192 Can read chemical analyses element 45 read_chemicalanalyseselement
+193 Can read chemical analyses oxide 46 read_chemicalanalysesoxide
+194 Can read image 47 read_image
+195 Can read image comment 48 read_imagecomment
+196 Can read sample comment 53 read_samplecomment
 \.
 
 
