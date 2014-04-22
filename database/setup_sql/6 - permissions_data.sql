@@ -208,9 +208,8 @@ COPY auth_permission (id, name, content_type_id, codename) FROM stdin;
 191 Can read chemical analyses 44 read_chemicalanalyses
 192 Can read chemical analyses element 45 read_chemicalanalyseselement
 193 Can read chemical analyses oxide 46 read_chemicalanalysesoxide
-194 Can read image 47 read_image
-195 Can read image comment 48 read_imagecomment
-196 Can read sample comment 53 read_samplecomment
+194 Can read image comment 48 read_imagecomment
+195 Can read sample comment 53 read_samplecomment
 \.
 
 

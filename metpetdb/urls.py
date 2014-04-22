@@ -48,7 +48,7 @@ url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'
 url(r'^webservices/samples$', 'webservices.views.samples'),
 url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analyses'),
 
-url(r'api/', include(api_v1.urls)),
+url(r'^api/', include(api_v1.urls)),
 
 # url(r'tastyapi/views/access/(\d+)','tastyapi.views.access', name='access'),
 
