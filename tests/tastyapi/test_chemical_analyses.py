@@ -51,16 +51,16 @@ class ChemAnalysesCreateTest(ChemAnalysesTestSetUp):
         credentials = self.get_credentials()
 
         valid_post_data = {
-            'user': '/tastyapi/v1/user/1/',
-            'reference': '/tastyapi/v1/reference/2/',
-            'subsample': '/tastyapi/v1/subsample/1/',
-            'mineral': '/tastyapi/v1/mineral/5/',
+            'user': '/api/v1/user/1/',
+            'reference': '/api/v1/reference/2/',
+            'subsample': '/api/v1/subsample/1/',
+            'mineral': '/api/v1/mineral/5/',
             'public_data': 'Y',
             'large_rock': 'Y',
             'spot_id': '11',
         }
 
-        resp = client.post('/tastyapi/v1/chemical_analysis/',
+        resp = client.post('/api/v1/chemical_analysis/',
                            data=valid_post_data,
                            authentication=credentials,
                            format='json')
@@ -100,21 +100,21 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
 
     def test_authorized_user_can_read_own_chem_analysis(self):
         credentials = self.get_credentials()
-        resp = client.get('/tastyapi/v1/chemical_analysis/1/',
+        resp = client.get('/api/v1/chemical_analysis/1/',
                           authentication=credentials,
                           format='json')
         self.assertHttpOK(resp)
 
     def test_user_can_read_unowned_public_chemical_analysis(self):
         credentials = self.get_credentials(user_id=2)
-        resp = client.get('/tastyapi/v1/chemical_analysis/1/',
+        resp = client.get('/api/v1/chemical_analysis/1/',
                           authentication=credentials,
                           format='json')
         self.assertHttpOK(resp)
 
     def test_user_cannot_read_unowned_private_chemical_analysis(self):
         credentials = self.get_credentials(user_id=2)
-        resp = client.get('/tastyapi/v1/chemical_analysis/2/',
+        resp = client.get('/api/v1/chemical_analysis/2/',
                           authentication=credentials,
                           format='json')
         self.assertHttpUnauthorized(resp)
@@ -122,13 +122,13 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
     def test_user_can_update_own_chemical_analysis(self):
         credentials = self.get_credentials()
         chem_a = self.deserialize(client.get(
-                                           '/tastyapi/v1/chemical_analysis/1/',
+                                           '/api/v1/chemical_analysis/1/',
                                            authentication=credentials,
                                            format='json'))
         nt.assert_equal(chem_a['spot_id'], '18')
         chem_a['spot_id'] = 25
-        chem_a['mineral'] = '/tastyapi/v1/mineral/8/'
-        resp = client.put('/tastyapi/v1/chemical_analysis/1/',
+        chem_a['mineral'] = '/api/v1/mineral/8/'
+        resp = client.put('/api/v1/chemical_analysis/1/',
                           data=chem_a,
                           authentication=credentials,
                           format='json')
@@ -142,7 +142,7 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
         credentials = self.get_credentials()
         nt.assert_equal(ChemicalAnalyses.objects.count(), 2)
         nt.assert_equal(GroupAccess.objects.count(), 7)
-        resp = client.delete('/tastyapi/v1/chemical_analysis/1/',
+        resp = client.delete('/api/v1/chemical_analysis/1/',
                               authentication=credentials,
                               format='json')
         self.assertHttpAccepted(resp)
@@ -152,7 +152,7 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
     def test_user_cannot_delete_unowned_chemical_analysis(self):
         credentials = self.get_credentials(user_id=2)
         nt.assert_equal(ChemicalAnalyses.objects.count(), 2)
-        resp = client.delete('/tastyapi/v1/chemical_analysis/1/',
+        resp = client.delete('/api/v1/chemical_analysis/1/',
                               authentication=credentials,
                               format='json')
         self.assertHttpUnauthorized(resp)

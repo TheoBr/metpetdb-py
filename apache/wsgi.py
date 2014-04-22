@@ -18,14 +18,12 @@ framework.
 import os
 import sys
 
-path = '/home/metpetdb_py/code'
-if path not in sys.path:
-    sys.path.append(path)
+sys.path.append('/home/metpetdb_py/code')
 sys.path.append('/home/metpetdb_py')
-sys.path.append('/home/metpetdb_py/.virtualenvs/mpdb/lib/python2.7/site-packages')
+sys.path.append('/home/metpetdb_py/.virtualenvs/api/lib/python2.7/site-packages')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'metpetdb.settings'
 
-activate_this = '/home/metpetdb_py/.virtualenvs/mpdb/bin/activate_this.py'
+activate_this = '/home/metpetdb_py/.virtualenvs/api/bin/activate_this.py'
 execfile(activate_this, dict(__file__=activate_this))
 
 # This application object is used by any WSGI server configured to use this
