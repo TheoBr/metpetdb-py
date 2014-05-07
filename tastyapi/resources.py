@@ -158,6 +158,18 @@ class ObjectAuthorization(Authorization):
     delete_list = _filter_by_permission_closure(lambda self: self.change_perm)
     delete_detail = _check_perm_closure(lambda self: self.change_perm)
 
+class CustomApiKeyAuth(ApiKeyAuthentication):
+    """Disable API key authentication for GET requests
+
+    Let anybody access resources with public_data == 'Y'
+    """
+
+    def is_authenticated(self, request, **kwargs):
+        if request.method == 'GET':
+            return True
+        else:
+            return super(CustomApiKeyAuth, self).is_authenticated(request,
+                                                                  **kwargs)
 
 class FirstOrderResource(ModelResource):
     """Resource that can only be filtered with "first-order" filters.
@@ -334,12 +346,13 @@ class SampleResource(VersionedResource, FirstOrderResource):
     class Meta:
         queryset = Sample.objects.all()
         allowed_methods = ['get', 'post', 'put', 'delete']
-        authentication = ApiKeyAuthentication()
+        always_return_data = True
+        authentication = CustomApiKeyAuth()
         authorization = ObjectAuthorization('tastyapi', 'sample')
         excludes = ['user', 'collector']
         filtering = {
                 'version': ALL,
-                'sesar_number': ALL,
+                'number': ALL,
                 'public_data': ALL,
                 'collection_date': ALL,
                 'rock_type': ALL_WITH_RELATIONS,
@@ -460,7 +473,7 @@ class SubsampleTypeResource(BaseResource):
         resource_name = 'subsample_type'
         allowed_methods = ['get']
         queryset = SubsampleType.objects.all()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         filtering = {'subsample_type': ALL}
 
 class SubsampleResource(VersionedResource, FirstOrderResource):
@@ -471,6 +484,7 @@ class SubsampleResource(VersionedResource, FirstOrderResource):
         queryset = Subsample.objects.all()
         excludes = ['user']
         allowed_methods = ['get', 'post', 'put', 'delete']
+        always_return_data = True
         authorization = ObjectAuthorization('tastyapi', 'subsample')
         authentication = ApiKeyAuthentication()
         filtering = {
@@ -500,9 +514,10 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
         queryset = ChemicalAnalyses.objects.all()
         resource_name = 'chemical_analysis'
         allowed_methods = ['get', 'post', 'put', 'delete']
+        always_return_data = True
         excludes = ['image', 'user']
         authorization = ObjectAuthorization('tastyapi', 'chemicalanalyses')
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         filtering = {
                 'subsample': ALL_WITH_RELATIONS,
                 'reference': ALL_WITH_RELATIONS,

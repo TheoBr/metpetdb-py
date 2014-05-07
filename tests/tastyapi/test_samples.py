@@ -1,17 +1,9 @@
-from django.contrib.contenttypes.models import ContentType
-from tastyapi.models import Group, GroupExtra, GroupAccess
-from tastyapi.models import User, Sample, Subsample, SubsampleType, \
-                            RockType, ChemicalAnalyses, Region, SampleRegion,\
-                            SampleReference, SampleMetamorphicGrade, \
-                            SampleMineral, SampleMetamorphicRegion, \
-                            GroupExtra, get_public_groups
-
+from tastyapi.models import GroupAccess
+from tastyapi.models import User, Sample, RockType
 from django.contrib.auth.models import User as AuthUser
 from tastypie.test import ResourceTestCase
-from tastypie.models import ApiKey
 import nose.tools as nt
 from .base_class import TestSetUp, client
-import logging
 
 
 valid_post_data = {
@@ -45,10 +37,9 @@ valid_post_data = {
 }
 
 class SampleResourceCreateTest(TestSetUp):
-    fixtures = ['auth_users.json', 'users.json', 'regions.json',
+    fixtures = ['users.json', 'regions.json',
                 'references.json', 'metamorphic_grades.json', 'minerals.json',
                 'rock_types.json', 'metamorphic_regions.json']
-
 
     def test_authorized_user_can_create_a_sample(self):
         nt.assert_equal(Sample.objects.count(), 0)
@@ -66,8 +57,6 @@ class SampleResourceCreateTest(TestSetUp):
         nt.assert_equal(sample.minerals.all().count(), 4)
         nt.assert_equal(sample.regions.all().count(), 3)
 
-
-
     def test_unauthorized_user_cannot_create_a_sample(self):
         nt.assert_equal(Sample.objects.count(), 0)
         credentials = self.get_credentials(user_id = 3)
@@ -78,7 +67,8 @@ class SampleResourceCreateTest(TestSetUp):
 
 
 class SampleResourceReadUpdateDeleteTest(TestSetUp):
-    fixtures = ['auth_users.json', 'users.json', 'rock_types.json']
+    fixtures = ['users.json', 'rock_types.json']
+
     def setUp(self):
         super(SampleResourceReadUpdateDeleteTest, self).setUp()
         rock_type = RockType.objects.get(pk = 16)
@@ -95,6 +85,21 @@ class SampleResourceReadUpdateDeleteTest(TestSetUp):
                               location_text = 'anfdaf',
                               location = 'POINT(-49.3400382995604971 \
                                                 -16.5187797546387003)')
+        Sample.objects.create(user = self.user,
+                              version = 1,
+                              sesar_number = 14343,
+                              public_data = 'N',
+                              date_precision = '1',
+                              number = 'NL-67:2005-06291',
+                              rock_type = rock_type,
+                              description = 'Created by a test case',
+                              location_error = 2000,
+                              country = 'Brazil',
+                              location_text = 'anfdaf',
+                              location = 'POINT(-49.3400382995604971 \
+                                                -16.5187797546387003)')
+
+
     def test_finds_an_existing_sample(self):
         credentials = self.get_credentials()
         resp = client.get('/api/v1/sample/1/',
@@ -113,32 +118,36 @@ class SampleResourceReadUpdateDeleteTest(TestSetUp):
                           authentication = credentials, format = 'json')
         self.assertHttpNotFound(resp)
 
-    def test_cannot_read_a_sample_without_an_apikey(self):
+    def test_can_read_a_public_sample_without_an_apikey(self):
         resp = client.get('/api/v1/sample/1/', format = 'json')
+        self.assertHttpOK(resp)
+
+    def test_cannot_read_a_private_sample_without_an_apikey(self):
+        resp = client.get('/api/v1/sample/2/', format = 'json')
         self.assertHttpUnauthorized(resp)
 
     def test_user_can_delete_own_sample(self):
         credentials = self.get_credentials()
-        nt.assert_equal(Sample.objects.count(), 1)
-        nt.assert_equal(GroupAccess.objects.count(), 2)
+        nt.assert_equal(Sample.objects.count(), 2)
+        nt.assert_equal(GroupAccess.objects.count(), 3)
         resp = client.delete('/api/v1/sample/1/',
                              authentication = credentials, format = 'json')
         self.assertHttpAccepted(resp)
-        nt.assert_equal(Sample.objects.count(), 0)
-        nt.assert_equal(GroupAccess.objects.count(), 0)
+        nt.assert_equal(Sample.objects.count(), 1)
+        nt.assert_equal(GroupAccess.objects.count(), 1)
 
     def test_user_cannot_delete_unowned_sample(self):
         credentials = self.get_credentials(user_id = 2)
-        nt.assert_equal(Sample.objects.count(), 1)
+        nt.assert_equal(Sample.objects.count(), 2)
         resp = client.delete('/api/v1/sample/1/',
                              authentication = credentials, format = 'json')
         self.assertHttpUnauthorized(resp)
-        nt.assert_equal(Sample.objects.count(), 1)
+        nt.assert_equal(Sample.objects.count(), 2)
 
 
     def test_user_can_update_own_sample(self):
         credentials = self.get_credentials()
-        nt.assert_equal(Sample.objects.count(), 1)
+        nt.assert_equal(Sample.objects.count(), 2)
         sample = self.deserialize(client.get('/api/v1/sample/1/',
                                   authentication = credentials, format='json'))
         nt.assert_equal("Created by a test case", sample['description'])
@@ -147,11 +156,11 @@ class SampleResourceReadUpdateDeleteTest(TestSetUp):
         resp = client.put('/api/v1/sample/1/', data=sample,
                            authentication=credentials, format='json')
 
-        self.assertHttpAccepted(resp)
+        self.assertHttpOK(resp)
         sample = self.deserialize(client.get('/api/v1/sample/1/',
                                   authentication = credentials, format='json'))
         nt.assert_equal("Updated by a test case", sample['description'])
-        nt.assert_equal(Sample.objects.count(), 1)
+        nt.assert_equal(Sample.objects.count(), 2)
 
 
     def test_user_cannot_update_unowned_sample(self):

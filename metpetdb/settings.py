@@ -1,8 +1,10 @@
 import os
+from getenv import env
 
 PROJECT_DIR = os.path.dirname(__file__)
 PROJECT_DIR = os.path.join(PROJECT_DIR, '..')
 FIXTURES_DIR = os.path.join(PROJECT_DIR, 'fixtures')
+HOST_NAME = env('HOST_NAME')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -10,6 +12,12 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
+
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = env('EMAIL_PORT')
 
 AUTHENTICATION_BACKENDS = ('tastyapi.auth.DACBackend',)
 
@@ -27,13 +35,13 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'metpetdb',                      # Or path to database file if using sqlite3.
-        'USER': 'metpetdb',                      # Not used with sqlite3.
-        'PASSWORD': 'metpetdb',                  # Not used with sqlite3.
-        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-        'TEST_NAME': 'metpetdb_test',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USERNAME'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': '',
+        'TEST_NAME': env('TEST_DB_NAME'),
     }
 }
 
@@ -105,6 +113,17 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    'django.core.context_processors.request',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -121,7 +140,7 @@ ROOT_URLCONF = 'metpetdb.urls'
 WSGI_APPLICATION = 'metpetdb.wsgi.application'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'web', 'webservices'),
+    os.path.join(PROJECT_DIR, 'tastyapi/templates', 'web', 'webservices'),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

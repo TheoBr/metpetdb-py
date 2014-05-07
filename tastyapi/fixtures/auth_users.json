@@ -12,7 +12,7 @@
             "last_login": "2014-02-17T22:17:13.313Z",
             "groups": [],
             "user_permissions": [],
-            "password": "pbkdf2_sha256$10000$OWeP2luptmuK$7eE7M3/Cdy70ki4bPGOZtCqkhjNkJdDTDFuhj8aDU6g=",
+            "password": "sibel",
             "email": "sibel@cs.rpi.edu",
             "date_joined": "2014-02-17T22:17:13.313Z"
         }
@@ -30,7 +30,7 @@
             "last_login": "2014-02-17T22:17:13.313Z",
             "groups": [],
             "user_permissions": [],
-            "password": "pbkdf2_sha256$10000$OWeP2luptmuK$7eE7M3/Cdy70ki4bPGOZtCqkhjNkJdDTDFuhj8aDU6g=",
+            "password": "john_doe_pwd",
             "email": "john@doe.com",
             "date_joined": "2012-07-28T22:17:13.313Z"
         }
@@ -48,7 +48,7 @@
             "last_login": "2011-09-11T22:17:13.313Z",
             "groups": [],
             "user_permissions": [],
-            "password": "pbkdf2_sha256$10000$OWeP2luptmuK$7eE7M3/Cdy70ki4bPGOZtCqkhjNkJdDTDFuhj8aDU6g=",
+            "password": "jane_doe_pwd",
             "email": "jane@doe.com",
             "date_joined": "2012-07-28T22:17:13.313Z"
         }

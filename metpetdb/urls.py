@@ -31,6 +31,13 @@ api_v1.register(MetamorphicGradeResource())
 api_v1.register(MetamorphicRegionResource())
 
 urlpatterns = patterns('',
+url(r'^register/$', 'tastyapi.views.register'),
+url(r'^authenticate/$', 'tastyapi.views.authenticate'),
+url(r'^confirm/([a-zA-Z0-9]*)/$', 'tastyapi.views.confirm'),
+url(r'^request_contributor_access/$',
+    'tastyapi.views.request_contributor_access'),
+url(r'^grant_contributor_access/([a-zA-Z0-9]*)/$',
+    'tastyapi.views.grant_contributor_access'),
 url(r'^webservices/sample/(\d+)/$','webservices.views.sample', name='sample'),
 url(r'^webservices/subsample/(\d+)/$','webservices.views.subsample', name='subsample'),
 url(r'^webservices/chemicalanalysis/(\d+)/$', 'webservices.views.chemicalanalysis', name='chemanalysis'),

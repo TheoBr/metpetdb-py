@@ -1,24 +1,19 @@
-from django.contrib.contenttypes.models import ContentType
-from tastyapi.models import Group, GroupExtra, GroupAccess
 from tastyapi.models import User, Sample, Subsample, SubsampleType, \
-                            RockType, ChemicalAnalyses, Region, SampleRegion,\
-                            SampleReference, SampleMetamorphicGrade, \
-                            SampleMineral, SampleMetamorphicRegion, \
-                            GroupExtra, Subsample, Reference, Mineral, \
-                            get_public_groups
+                            RockType, ChemicalAnalyses, Subsample, Reference, \
+                            Mineral, GroupAccess
 
 from django.contrib.auth.models import User as AuthUser
 from tastypie.test import ResourceTestCase
 from tastypie.models import ApiKey
 import nose.tools as nt
 from .base_class import TestSetUp, client
-import logging
 
 
 class ChemAnalysesTestSetUp(TestSetUp):
-    fixtures = ['auth_users.json', 'users.json', 'regions.json',
+    fixtures = ['users.json', 'regions.json',
                 'references.json', 'minerals.json', 'rock_types.json',
                 'subsample_types.json']
+
     def setUp(self):
         super(ChemAnalysesTestSetUp, self).setUp()
         rock_type = RockType.objects.get(pk = 16)
@@ -112,6 +107,18 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
                           format='json')
         self.assertHttpOK(resp)
 
+    def test_user_can_read_public_chemical_analysis_without_an_apikey(self):
+        credentials = self.get_credentials(user_id=2)
+        resp = client.get('/api/v1/chemical_analysis/1/',
+                          format='json')
+        self.assertHttpOK(resp)
+
+    def test_user_cannot_read_private_chemical_analysis_without_an_apikey(self):
+        credentials = self.get_credentials(user_id=2)
+        resp = client.get('/api/v1/chemical_analysis/2/',
+                          format='json')
+        self.assertHttpUnauthorized(resp)
+
     def test_user_cannot_read_unowned_private_chemical_analysis(self):
         credentials = self.get_credentials(user_id=2)
         resp = client.get('/api/v1/chemical_analysis/2/',
@@ -134,7 +141,7 @@ class ChemAnalysesReadUpdateDeleteTest(ChemAnalysesTestSetUp):
                           format='json')
 
         chem_a = ChemicalAnalyses.objects.get(pk=1)
-        self.assertHttpAccepted(resp)
+        self.assertHttpOK(resp)
         nt.assert_equal(chem_a.spot_id, 25L)
         nt.assert_equal(chem_a.mineral, Mineral.objects.get(pk=8))
 

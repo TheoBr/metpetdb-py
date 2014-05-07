@@ -1,17 +1,12 @@
-from django.contrib.contenttypes.models import ContentType
-from tastyapi.models import Group, GroupExtra, GroupAccess
+from tastyapi.models import GroupAccess
 from tastyapi.models import User, Sample, Subsample, SubsampleType, \
-                            RockType, ChemicalAnalyses, Region, SampleRegion,\
-                            SampleReference, SampleMetamorphicGrade, \
-                            SampleMineral, SampleMetamorphicRegion, \
-                            GroupExtra, get_public_groups
+                            RockType
 
 from django.contrib.auth.models import User as AuthUser
 from tastypie.test import ResourceTestCase
 from tastypie.models import ApiKey
 import nose.tools as nt
 from .base_class import TestSetUp, client
-import logging
 
 subsample_data = {
     'user': '/api/v1/user/1/',
@@ -24,8 +19,9 @@ subsample_data = {
 }
 
 class SubSampleReadResourceTest(TestSetUp):
-    fixtures = ['auth_users.json', 'users.json', 'rock_types.json',
+    fixtures = ['users.json', 'rock_types.json',
                 'subsample_types.json']
+
     def setUp(self):
         super(SubSampleReadResourceTest, self).setUp()
         rock_type = RockType.objects.get(pk=16)
@@ -92,8 +88,9 @@ class SubSampleReadResourceTest(TestSetUp):
         self.assertHttpUnauthorized(resp)
 
 class SubSampleResourceCreateTest(TestSetUp):
-    fixtures = ['auth_users.json', 'users.json', 'rock_types.json',
+    fixtures = ['users.json', 'rock_types.json',
      'subsample_types.json']
+
     def setUp(self):
         super(SubSampleResourceCreateTest, self).setUp()
         rock_type = RockType.objects.get(pk=16)
@@ -128,7 +125,7 @@ class SubSampleResourceCreateTest(TestSetUp):
         nt.assert_equal(Subsample.objects.count(), 0)
 
 class SubsampleResourceUpdateDeleteTest(TestSetUp):
-    fixtures = ['auth_users.json', 'users.json', 'rock_types.json',
+    fixtures = ['users.json', 'rock_types.json',
                 'subsample_types.json']
 
     def setUp(self):
@@ -182,7 +179,7 @@ class SubsampleResourceUpdateDeleteTest(TestSetUp):
         resp = client.put('/api/v1/subsample/1/', data=subsample,
                            authentication=credentials, format='json')
 
-        self.assertHttpAccepted(resp)
+        self.assertHttpOK(resp)
         subsample = self.deserialize(client.get('/api/v1/subsample/1/',
                                                 authentication=credentials,
                                                 format='json'))

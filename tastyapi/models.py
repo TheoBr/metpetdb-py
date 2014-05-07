@@ -3,7 +3,9 @@
 # into your database.
 from __future__ import unicode_literals
 import uuid
-
+import hashlib
+import base64
+import random
 from django.db.models import Model, BigIntegerField, CharField, DateTimeField,\
                              FloatField, ForeignKey, IntegerField,\
                              ManyToManyField, SmallIntegerField, TextField, \
@@ -13,6 +15,7 @@ from django.db.models import Field
 from django.db.models import Q
 from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.hashers import make_password
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.gis.db.models import GeoManager, PolygonField, PointField,\
@@ -23,6 +26,11 @@ from django.core.mail import EmailMessage
 from django.db import models as DjangoModels
 from tastypie.models import ApiKey
 from django.contrib.gis.db import models
+
+from metpetdb import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
 
 from . import utils
 
@@ -148,19 +156,19 @@ def delete_group_access(sender, instance, using, **kwargs):
                                     object_id=instance.pk).delete()
         except: pass
 
-class BinaryField(Field):
-    description = 'A sequence of bytes'
-    def db_type(self, connection):
-        return 'bytea'
-    def get_prep_value(self, value):
-        return bytearray(value)
-    def get_prep_lookup(self, lookup_type, value):
-        if lookup_type in ['iexact', 'icontains', 'istartswith', 'iendswith',
-                           'year', 'month', 'day', 'week_day', 'hour',
-                           'minute', 'second', 'iregex']:
-            raise TypeError('%r is not a supported lookup type.' % lookup_type)
-        else:
-            return super(Field, self).get_prep_lookup(lookup_type, value)
+# class BinaryField(Field):
+#     description = 'A sequence of bytes'
+#     def db_type(self, connection):
+#         return 'bytea'
+#     def get_prep_value(self, value):
+#         return bytearray(value)
+#     def get_prep_lookup(self, lookup_type, value):
+#         if lookup_type in ['iexact', 'icontains', 'istartswith', 'iendswith',
+#                            'year', 'month', 'day', 'week_day', 'hour',
+#                            'minute', 'second', 'iregex']:
+#             raise TypeError('%r is not a supported lookup type.' % lookup_type)
+#         else:
+#             return super(Field, self).get_prep_lookup(lookup_type, value)
 
 PUBLIC_DATA_CHOICES = (('Y', 'Yes'),('N', 'No'))
 
@@ -177,13 +185,23 @@ PUBLIC_DATA_CHOICES = (('Y', 'Yes'),('N', 'No'))
 #     class Meta:
 #         db_table = 'geometry_columns'
 
+def generate_confirmation_code(string):
+    """
+     The confirmation code will be a SHA1 hash, generated from a combination
+     of any string and a random salt.
+    """
+    salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
+    if isinstance(string, unicode):
+        string = string.encode('utf-8')
+    confirmation_code = hashlib.sha1(salt+string).hexdigest()
+    return confirmation_code[:32]
 
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True)
     version = models.IntegerField()
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=255, unique=True)
-    password = models.TextField() # This field type is a guess.
+    password = models.BinaryField()
     address = models.CharField(max_length=200, blank=True)
     city = models.CharField(max_length=50, blank=True)
     province = models.CharField(max_length=100, blank=True)
@@ -200,6 +218,19 @@ class User(models.Model):
     research_interests = models.CharField(max_length=1024, blank=True)
     request_contributor = models.CharField(max_length=1, blank=True)
     django_user = OneToOneField(AuthUser, blank=True, null=True)
+
+    class Meta:
+        # managed = False
+        db_table = 'users'
+        get_latest_by = "user_id"
+
+    def save(self, **kwargs):
+        if self.pk is None:
+            self.pk = utils.get_next_id(User)
+            self.confirmation_code = generate_confirmation_code(self.name)
+        super(User, self).save(**kwargs)
+
+
 
     def auto_verify(self, confirmation_code):
         """Called to perform email verification.
@@ -221,6 +252,9 @@ class User(models.Model):
             for group in public_groups.select_for_update():
                 if group not in self.django_user.groups.all():
                     self.django_user.groups.add(group)
+            self.enabled = 'Y'
+            self.save()
+            return True
         else:
             raise ValueError("Confirmation code incorrect.")
 
@@ -246,9 +280,46 @@ class User(models.Model):
             GroupExtra(group=user_group,
                        group_type='u_uid',
                        owner=self.django_user).save()
-    class Meta:
-        # managed = False
-        db_table = 'users'
+        self.contributor_enabled = 'Y'
+        self.save()
+        return True
+
+@receiver(post_save, sender=User)
+def create_auth_user(sender, instance, created, raw, **kwargs):
+    if created:
+        username = ''.join(c for c in instance.email if c.isalnum() or
+                                                        c in ['_', '@',
+                                                            '+', '.',
+                                                            '-'])[:30]
+
+        auth_user = AuthUser.objects.create(username=username,
+                                            password=instance.password,
+                                            email=instance.email,
+                                            is_staff=False,
+                                            is_active=True,
+                                            is_superuser=False)
+        auth_user.save()
+        instance.django_user = auth_user
+        instance.save()
+        ApiKey.objects.create(user=auth_user)
+
+@receiver(post_save, sender=User)
+def send_conf_email(sender, instance, created, raw, **kwargs):
+    if created:
+        plaintext = get_template('confirmation_email.txt')
+        html      = get_template('confirmation_email.html')
+
+        d = Context({ 'name': instance.name,
+                      'confirmation_code': instance.confirmation_code,
+                      'host_name': settings.HOST_NAME })
+
+        subject, from_email, to = 'hello', 'krishna@aradhi.me', \
+                                  'krishna@aradhi.me'
+        text_content = plaintext.render(d)
+        html_content = html.render(d)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
 
 
 class UsersRole(models.Model): #needs primary ID?
@@ -342,6 +413,7 @@ class Reference(models.Model):
     class Meta:
         # managed = False
         db_table = u'reference'
+        get_latest_by = "reference_id"
         permissions = (('read_reference', 'Can read reference'),)
 
 class Region(models.Model):
@@ -372,15 +444,15 @@ class Role(models.Model):
         db_table = 'roles'
 
 
-class SpatialRefSys(models.Model):
-    srid = models.IntegerField(primary_key=True)
-    auth_name = models.CharField(max_length=256, blank=True)
-    auth_srid = models.IntegerField(null=True, blank=True)
-    srtext = models.CharField(max_length=2048, blank=True)
-    proj4text = models.CharField(max_length=2048, blank=True)
-    class Meta:
-        # managed = False
-        db_table = 'spatial_ref_sys'
+# class SpatialRefSys(models.Model):
+#     srid = models.IntegerField(primary_key=True)
+#     auth_name = models.CharField(max_length=256, blank=True)
+#     auth_srid = models.IntegerField(null=True, blank=True)
+#     srtext = models.CharField(max_length=2048, blank=True)
+#     proj4text = models.CharField(max_length=2048, blank=True)
+#     class Meta:
+#         # managed = False
+#         db_table = 'spatial_ref_sys'
 
 class SubsampleType(models.Model):
     subsample_type_id = models.SmallIntegerField(primary_key=True)
@@ -503,7 +575,7 @@ class Sample(models.Model):
     def save(self, **kwargs):
         # Assign a sample ID only for create requests
         self.sample_id = self.sample_id or utils.get_next_id(Sample)
-        super(Sample, self).save()
+        super(Sample, self).save(**kwargs)
 
 
 class SampleMetamorphicGrade(models.Model):
@@ -591,7 +663,7 @@ class Subsample(models.Model):
     def save(self, **kwargs):
         # Assign an ID only for create requests
         self.subsample_id = self.subsample_id or utils.get_next_id(Subsample)
-        super(Subsample, self).save()
+        super(Subsample, self).save(**kwargs)
 
 class Grid(models.Model):
     grid_id = models.BigIntegerField(primary_key=True)
@@ -641,7 +713,7 @@ class ChemicalAnalyses(models.Model):
         # Assign an ID only for create requests
         self.chemical_analysis_id = self.chemical_analysis_id or \
                                     utils.get_next_id(ChemicalAnalyses)
-        super(ChemicalAnalyses, self).save()
+        super(ChemicalAnalyses, self).save(**kwargs)
 
 class ChemicalAnalysisElement(models.Model):
     chemical_analysis = models.ForeignKey(ChemicalAnalyses)

@@ -1,5 +1,7 @@
 import base64
 import logging
+import dotenv
+dotenv.read_dotenv('../../env_variables.env')
 logger = logging.getLogger(__name__)
 
 from django.contrib.contenttypes.models import ContentType
@@ -7,7 +9,6 @@ from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth.models import Group
 from django.db import transaction
 
-from tastypie.models import ApiKey
 from tastyapi.models import get_public_groups
 from tastyapi.models import User as MetpetUser
 from tastyapi.models import Group, GroupExtra, GroupAccess

@@ -1,5 +1,5 @@
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import Permission, Group, User
+from django.contrib.auth.models import Permission, Group, User, AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
@@ -37,11 +37,19 @@ class DACBackend(ModelBackend):
                 # If the object has group-based access control at all, then
                 # Find all the groups by which this user might have access
                 # NB: this queryset returns GroupAccess's, not Groups
-                groupset = obj.group_access.filter(group__user=user_obj)
-                can_read = groupset.filter(read_access=True).exists()
-                can_write = groupset.filter(write_access=True).exists()
+
+                # API key authentication is disabled for GET requests to allow
+                # anybody to access resources with public_data == 'Y'
+                if type(user_obj) == AnonymousUser:
+                    can_read, can_write = None, None
+                else:
+                    groupset = obj.group_access.filter(group__user=user_obj)
+                    can_read = groupset.filter(read_access=True).exists()
+                    can_write = groupset.filter(write_access=True).exists()
+
                 if hasattr(obj, 'public_data') and obj.public_data == "Y":
                     can_read = True
+
                 if can_read:
                     results.add("%s.%s" % (read_perm.content_type.app_label,
                                            read_perm.codename))
@@ -121,4 +129,6 @@ def get_read_queryset(user, prefix=None):
                        "__".join(prefix, "group_access__group__user"): user}
         return Q(**result_dict)
     else:
-        return Q(group_access__read_access=True, group_access__group__user=user)
+        return (Q(group_access__read_access=True,
+                  group_access__group__user=user) | \
+                Q(public_data='Y'))

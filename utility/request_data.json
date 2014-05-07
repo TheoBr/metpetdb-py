@@ -1,0 +1,110 @@
+{
+  "local": {
+    "url": "http://localhost:8000/api/v1/",
+    "user": "watera2@cs.rpi.edu",
+    "api_key": "ad23fc4e776d48b1b128ae0e3d72a47acb1942f9",
+    "sample_post_data": {
+      "user": "/api/v1/user/85/",
+      "sesar_number": "13535367",
+      "public_data": "Y",
+      "date_precision": "1",
+      "number": "NL-672005-06376",
+      "rock_type": "/api/v1/rock_type/16/",
+      "regions": ["Pune", "Mumbai", "Hyderabad"],
+      "references": ["2004-061315",
+                     "2004-065494"],
+      "metamorphic_grades": ["/api/v1/metamorphic_grade/1/",
+                             "/api/v1/metamorphic_grade/2/",
+                             "/api/v1/metamorphic_grade/3/",
+                             "/api/v1/metamorphic_grade/4/"],
+      "metamorphic_regions": ["/api/v1/metamorphic_region/427/",
+                             "/api/v1/metamorphic_region/428/",
+                             "/api/v1/metamorphic_region/429/",
+                             "/api/v1/metamorphic_region/430/"],
+      "minerals": ["/api/v1/mineral/1/",
+                   "/api/v1/mineral/2/",
+                   "/api/v1/mineral/3/",
+                   "/api/v1/mineral/4/"],
+      "description": "Created sample",
+      "location_error": "2000",
+      "country": "Brazil",
+      "location_text": "amfadf",
+      "location": "POINT (-49.3400382995604971 -16.5187797546387003)"
+    },
+    "subsample_post_data": {
+      "user": "/api/v1/user/85/",
+      "public_data": "Y",
+      "subsample_type":"/api/v1/subsample_type/1/",
+      "grid_id": 1,
+      "version": 1,
+      "name":"Create Subsample API Test",
+      "sample": "/api/v1/sample/6336/"
+    },
+    "subsample_put_data": {
+      "name":"Update Subsample API Test"
+    },
+    "chemical_analysis_post_data": {
+      "user": "/api/v1/user/85/",
+      "reference": "/api/v1/reference/2/",
+      "subsample": "/api/v1/subsample/250/",
+      "mineral": "/api/v1/mineral/5/",
+      "public_data": "Y",
+      "large_rock": "Y",
+      "spot_id": "11"
+    }
+  },
+  "garnet": {
+    "url": "http://garnet.cs.rpi.edu/api/v1/",
+    "user": "szymansk@cs.rpi.edu",
+    "api_key": "023a0c932fdfa66b5021c788cac9fe1c4a3f51d3",
+    "sample_post_data": {
+      "user": "/api/v1/user/87/",
+      "sesar_number": "13535367",
+      "public_data": "Y",
+      "date_precision": "1",
+      "number": "NL-672005-06376",
+      "rock_type": "/api/v1/rock_type/16/",
+      "regions": ["Pune", "Mumbai", "Hyderabad"],
+      "references": ["2004-061315",
+                     "2004-065494"],
+      "metamorphic_grades": ["/api/v1/metamorphic_grade/1/",
+                             "/api/v1/metamorphic_grade/2/",
+                             "/api/v1/metamorphic_grade/3/",
+                             "/api/v1/metamorphic_grade/4/"],
+      "metamorphic_regions": ["/api/v1/metamorphic_region/427/",
+                             "/api/v1/metamorphic_region/428/",
+                             "/api/v1/metamorphic_region/429/",
+                             "/api/v1/metamorphic_region/430/"],
+      "minerals": ["/api/v1/mineral/1/",
+                   "/api/v1/mineral/2/",
+                   "/api/v1/mineral/3/",
+                   "/api/v1/mineral/4/"],
+      "description": "Created sample",
+      "location_error": "2000",
+      "country": "Brazil",
+      "location_text": "amfadf",
+      "location": "POINT (-49.3400382995604971 -16.5187797546387003)"
+    },
+    "subsample_post_data": {
+      "user": "/api/v1/user/87/",
+      "public_data": "Y",
+      "subsample_type":"/api/v1/subsample_type/1/",
+      "grid_id": 1,
+      "version": 1,
+      "name":"Create Subsample API Test",
+      "sample": "/api/v1/sample/6336/"
+    },
+    "subsample_put_data": {
+      "name":"Update Subsample API Test"
+    },
+    "chemical_analysis_post_data": {
+      "user": "/api/v1/user/87/",
+      "reference": "/api/v1/reference/2/",
+      "subsample": "/api/v1/subsample/250/",
+      "mineral": "/api/v1/mineral/5/",
+      "public_data": "Y",
+      "large_rock": "Y",
+      "spot_id": "11"
+    }
+  }
+}
