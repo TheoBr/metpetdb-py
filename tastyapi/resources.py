@@ -1,4 +1,5 @@
 from django.db import transaction, IntegrityError
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.resources import ModelResource
@@ -166,7 +167,11 @@ class CustomApiKeyAuth(ApiKeyAuthentication):
 
     def is_authenticated(self, request, **kwargs):
         if request.method == 'GET':
-            return True
+            try:
+                return super(CustomApiKeyAuth, self).is_authenticated(
+                                                            request, **kwargs)
+            except:
+                request.user = AnonymousUser()
         else:
             return super(CustomApiKeyAuth, self).is_authenticated(request,
                                                                   **kwargs)
@@ -349,7 +354,7 @@ class SampleResource(VersionedResource, FirstOrderResource):
         always_return_data = True
         authentication = CustomApiKeyAuth()
         authorization = ObjectAuthorization('tastyapi', 'sample')
-        excludes = ['user', 'collector']
+        excludes = ['user']
         filtering = {
                 'version': ALL,
                 'number': ALL,
@@ -357,6 +362,13 @@ class SampleResource(VersionedResource, FirstOrderResource):
                 'collection_date': ALL,
                 'rock_type': ALL_WITH_RELATIONS,
                 'regions': ALL_WITH_RELATIONS,
+                'minerals': ALL_WITH_RELATIONS,
+                'metamorphic_grades': ALL_WITH_RELATIONS,
+                'metamorphic_regions': ALL_WITH_RELATIONS,
+                'collector': ALL,
+                'number': ALL,
+                'references': ALL_WITH_RELATIONS,
+                'sample_id': ALL
                 }
         validation = VersionValidation(queryset, 'sample_id')
 
@@ -398,7 +410,7 @@ class SampleResource(VersionedResource, FirstOrderResource):
                 except IntegrityError: continue
 
     def save_m2m(self, bundle):
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in self.fields.iteritems():
             if not getattr(field_object, 'is_m2m', False):
                 continue
 
@@ -428,7 +440,10 @@ class RegionResource(BaseResource):
         authentication = ApiKeyAuthentication()
         allowed_methods = ['get']
         resource_name = "region"
-        filtering = { 'region': ALL }
+        filtering = { 
+            'region': ALL,
+            'name': ALL 
+        }
 
 class RockTypeResource(BaseResource):
     class Meta:
@@ -492,6 +507,7 @@ class SubsampleResource(VersionedResource, FirstOrderResource):
                 'grid_id': ALL,
                 'name': ALL,
                 'subsample_type': ALL_WITH_RELATIONS,
+                'sample': ALL_WITH_RELATIONS
                 }
         validation = VersionValidation(queryset, 'subsample_id')
 

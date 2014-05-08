@@ -11,63 +11,63 @@
 		<tbody>
 			<tr>
 				<td class="sample_label">Owner</td>
-				<td class="sample_value">{{sample.attributes.owner_name}}</td>
+				<td class="sample_value">{{user.name}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">IGSN</td>
-				<td class="sample_value">{{sample.attributes.number}}</td>
+				<td class="sample_value">{{sample.number}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Aliases</td>
-				<td class="sample_value">{% for alias in sample.attributes.aliases%} {{alias.name}}, {%endfor%}</td>
+				<td class="sample_value">{% for alias in sample.aliases%} {{alias.name}}, {%endfor%}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Date Collected</td>
-				<td class="sample_value">{{sample.attributes.collection_date}}</td>
+				<td class="sample_value">{{sample.collection_date}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Rock Type</td>
-				<td class="sample_value">{{sample.attributes.rock_type_name}}</td>
+				<td class="sample_value">{{sample.rock_type.rock_type}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Public</td>
-				<td class="sample_value">{{sample.attributes.public_data}}</td>
+				<td class="sample_value">{{sample.public_data}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Longitude</td>
-				<td class="sample_value">{{sample.attributes.longitude}}</td>
+				<td class="sample_value">{{location.1}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Latitude</td>
-				<td class="sample_value">{{sample.attributes.latitude}}</td>
+				<td class="sample_value">{{location.0}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Country</td>
-				<td class="sample_value">{{sample.attributes.country}}</td>
+				<td class="sample_value">{{sample.country}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Collector</td>
-				<td class="sample_value">{{sample.attributes.collector}}</td>
+				<td class="sample_value">{{sample.collector_name}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Present Sample Location</td>
-				<td class="sample_value">{{sample.attributes.location_text}}</td>
+				<td class="sample_value">{{sample.location_text}}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Region</td>
-				<td class="sample_value">{% for region in sample.attributes.regions%}{{region.name}}, {%endfor%}</td>
+				<td class="sample_value">{% for region in sample.regions%}{{region.name}}, {%endfor%}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Metamorphic Region</td>
-				<td class="sample_value">{% for metamorphic_region in sample.attributes.metamorphic_regions%}{{metamorphic_region.name}}, {%endfor%}</td>
+				<td class="sample_value">{% for metamorphic_region in sample.metamorphic_regions%}{{metamorphic_region.name}}, {%endfor%}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Metamorphic Grade</td>
-				<td class="sample_value">{% for metamorphic_grade in sample.attributes.metamorphic_grades%}{{metamorphic_grade.name}}, {%endfor%}</td>
+				<td class="sample_value">{% for metamorphic_grade in sample.metamorphic_grades%}{{metamorphic_grade.name}}, {%endfor%}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Publication References</td>
-				<td class="sample_value">{% for reference in references%} {{reference.name}}, {%endfor%}</td>
+				<td class="sample_value">{% for reference in sample.references%} {{reference.name}}, {%endfor%}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Abstracts</td>
@@ -75,11 +75,11 @@
 			</tr>
 			<tr>
 				<td class="sample_label">Minerals</td>
-				<td class="sample_value">{% for mineral in sample.attributes.minerals%} {{mineral.name}},  {%endfor%}</td>
+				<td class="sample_value">{% for mineral in sample.minerals%} {{mineral.name}},  {%endfor%}</td>
 			</tr>
 			<tr>
 				<td class="sample_label">Count</td>
-				<td class="sample_value">{{sample.attributes.subsamples_count}}</td>
+				<td class="sample_value">{{sample.subsamples_count}}</td>
 			</tr>
 		</tbody>
 	</table>
@@ -135,12 +135,12 @@
 			{%for subsample in subsamples%}
 			<tr>
 				<!-- The link to subsample needs to be updated to named URL+ generic views type -->
-				<td id="img-popup"><a href="{% url subsample subsample.id %}" target="_blank">{{subsample.name}}</td>
-				<td>{{subsample.public}}</td>
-				<td>{{subsample.type}}</td>
-				<td>{{subsample.image_count}}</td>
-				<td>{{subsample.chemical_analysis_count}}</td>
-				<td>{{subsample.owner_name}}</td>
+				<td id="img-popup"><a href="{% url subsample subsample.0 %}" target="_blank">{{subsample.1}}</td>
+				<td>{{subsample.2}}</td>
+				<td>{{subsample.3}}</td>
+				<td>{{subsample.4}}</td>
+				<td>{{subsample.5}}</td>
+				<td>{{subsample.6}}</td>
 				<td> dont know yet</td>
 			</tr>
 			{%endfor%}
@@ -157,7 +157,7 @@
 	//images open in a pop up window on click
 	
 	
-	console.log({{sample.attributes.latitude}}+','+{{sample.attributes.longitude}});
+	console.log({{location.1}}+','+{{location.0}});
 	
 	$(document).ready(function() {
 		console.log('enter table code');
@@ -169,8 +169,8 @@
 	} );
 
 	//google map api
-	map_lat = {{sample.attributes.latitude}};
-	map_long = {{sample.attributes.longitude}};
+	map_lat = {{location.1}};
+	map_long = {{location.0}};
 	console.log(map_lat, map_long);
 
 	var myCenter=new google.maps.LatLng(map_lat, map_long);

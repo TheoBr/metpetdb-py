@@ -1,5 +1,7 @@
 from webservices.db import _DbObject, _DbGetQuery
 
+#from webservices.drestapi import MetPet
+
 class SampleObject(_DbObject):
     def __init__(self, id = None):
         self.getQuery = _SampleGetQuery();

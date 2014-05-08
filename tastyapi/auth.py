@@ -125,10 +125,12 @@ def get_read_queryset(user, prefix=None):
         return Q()
     if prefix: # NB: if prefix == "", go to else
         # Prepend a prefix
-        result_dict = {"__".join(prefix, "group_access__read_access"): True,
-                       "__".join(prefix, "group_access__group__user"): user}
+        #Review lines 129 and 130 for removing the prefix from the two strings
+        result_dict = {"group_access__read_access": True,
+                       "group_access__group__user": user}
         return Q(**result_dict)
     else:
         return (Q(group_access__read_access=True,
                   group_access__group__user=user) | \
                 Q(public_data='Y'))
+

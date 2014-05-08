@@ -8,10 +8,11 @@ from webservices.utility import *
 from webservices.sample import SampleObject, SampleImagesObject
 from webservices.subsample import SubsampleObject, SubsampleTableObject, SubsampleImagesTableObject
 from webservices.chemicalanalysis import ChemicalAnalysisObject, ChemicalAnalysisTableObject
+from webservices.db import MetPet
+from tastyapi.models import Region, Sample, Reference, MetamorphicRegion
 
 #direct stdout to stderr so that it is logged by the webserver
 sys.stdout = sys.stderr
-
 
 #Main interface view
 def index(request):
@@ -19,30 +20,225 @@ def index(request):
 
 #Request to serve search.html
 def search(request):
-	return render(request, 'search.html')
+	#Lists for filtering in search
+	region_list = []
+	collector_list = []
+	reference_list = []
+	metamorphic_region_list = []
+	all_regions = Region.objects.all().order_by("name")
+	all_samples = Sample.objects.all().order_by("collector")
+	all_references = Reference.objects.all().order_by("name")
+	all_metamorphic_regions = MetamorphicRegion.objects.all().order_by("name")
+	#Populate lists
+	for region in all_regions:
+		region_list.append(region.name)
+	for sample in all_samples:
+		if sample.collector and sample.collector not in collector_list:
+			print sample.collector
+			collector_list.append(sample.collector)
+	for ref in all_references:
+		reference_list.append(ref.name)
+	for mmr in all_metamorphic_regions:
+		metamorphic_region_list.append(mmr.name)
+
+	search_terms = {}
+	error = False
+	#Loop through search terms from search GET request in search form
+	#Prepare dictionary of filters for api request
+	print request.GET
+	for search_term in request.GET:
+		print search_term
+		print request.GET[search_term]
+		if request.GET[search_term]:
+			if search_term != 'resource':
+				search_terms[search_term] = request.GET[search_term]
+	#Temporary credentials for api
+	username = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	api = MetPet(username,api_key)
+	#determine what resource to search for
+	if search_terms:
+		if request.GET['resource'] == 'sample':
+			#search for samples
+
+			data = api.searchSamples(filters=search_terms)
+			#parse results
+			search_results = []
+			for key in data.data['objects']:
+				search_results.append(key['sample_id'])
+			return render(request, 'search_results.html',
+				{'samples': search_results, 'query': ''})
+		if request.GET['resource'] == 'chemicalanalysis':
+			#search for chemical analyses
+			data = api.searchChemicals(filters=search_terms)
+			search_results = []
+			for key in data.data['objects']:
+				search_results.append(key['chemical_analysis_id'])
+			return render(request, 'search_results.html',
+				{'samples': search_results, 'query': ''})
+	else:
+		data = api.searchSamples()
+		return render(request, 'search_form.html',
+			{'samples': [], 'query': '', 'regions':region_list,
+			 'provenenances': collector_list, "references": reference_list,
+			  "mmrs": metamorphic_region_list})
+	return render(request, 'search_form.html', {'error': error})
+
 
 #just a list of samples
-def samplelist(request):
-	cursor=con.cursor()
-	cursor.execute("SELECT DISTINCT sample_id, number FROM samples ORDER BY sample_id, number")
-	samplelist=cursor.fetchall()
+def previous(request, pagenum=1, optional=''):
+	# cursor=con.cursor()
+	# cursor.execute("SELECT DISTINCT sample_id, number FROM samples ORDER BY sample_id, number")
+	# samplelist=cursor.fetchall()
 	
-	for sample in samplelist:
-		print sample[1]
+	# for sample in samplelist:
+	# 	print sample[1]
+	pagenum = int(pagenum) - 40
+	api = MetPet("anonymous0@cs.rpi.edu",
+				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	user = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	if pagenum > 1:
+		data = api.getAllSamples(pagenum, user, api_key)
+	else:
+		data = api.getAllSamples()
+	nextlist = data.data['meta']['next']
+	samplelist =[]
+	offsets = []
+	total_count = data.data['meta']['total_count']
+	# print offset
+	print dir(samplelist)
+	for sample in data.data['objects']:
+		print sample['sample_id']
+		samplelist.append([sample['sample_id'],sample['number']] )
+	#CREATE PAGINATION
+	if total_count > 20:
+		pages = total_count / 20
+	for x in range(0,pages):
+		offsets.append(x*20)
+	pagenum = int(nextlist.split('=')[-1])
+	pageprev = pagenum - 20
 
-	return render(request,'samplelist.html', {'samples':samplelist})
+	return render(request,'samplelist.html', {'samples':samplelist,
+	 			  'nextURL': nextlist, 'total': total_count,
+	 			  'offsets': offsets, 'pagenum':pagenum, 'pageprev': pageprev})
+def samplelist(request, pagenum=1):
+	api = MetPet("anonymous0@cs.rpi.edu",
+		"24809ab2c593b544a491748094ed10d3cbffc699")
+	user = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	if pagenum > 1:
+		data = api.getAllSamples(pagenum, user, api_key)
+	else:
+		data = api.getAllSamples()
+	nextlist = data.data['meta']['next']
+	samplelist =[]
+	offsets = []
+	total_count = data.data['meta']['total_count']
+	# print offset
+	print dir(samplelist)
+	for sample in data.data['objects']:
+		print sample['sample_id']
+		samplelist.append([sample['sample_id'],sample['number']] )
+	#CREATE PAGINATION
+	if total_count > 20:
+		pages = total_count / 20
+	for x in range(0,pages):
+		offsets.append(x*20)
+	pagenum = int(nextlist.split('=')[-1])
+	pageprev = pagenum - 20
 
+	return render(request,'samplelist.html', {'samples':samplelist,
+				 'nextURL': nextlist, 'total': total_count, 'offsets': offsets,
+				 'pagenum': pagenum, 'pageprev': pageprev})
+
+def prevsamplelist(request, pagenum=1):
+	api = MetPet("anonymous0@cs.rpi.edu",
+		 		 "24809ab2c593b544a491748094ed10d3cbffc699")
+	user = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	if pagenum > 1:
+		pagenum -= 20
+		data = api.getAllSamples(pagenum, user, api_key)
+	else:
+		data = api.getAllSamples()
+	nextlist = data.data['meta']['next']
+	samplelist =[]
+	offsets = []
+	total_count = data.data['meta']['total_count']
+	# print offset
+	print dir(samplelist)
+	for sample in data.data['objects']:
+		print sample['sample_id']
+		samplelist.append([sample['sample_id'],sample['number']] )
+	#CREATE PAGINATION
+	if total_count > 20:
+		pages = total_count / 20
+	for x in range(0,pages):
+		offsets.append(x*20)
+	pagenum = int(nextlist.split('=')[-1])
+	pageprev = pagenum - 20
+
+	return render(request,'samplelist.html', {'samples':samplelist,
+	 			  'nextURL': nextlist, 'total': total_count,
+	 			  'offsets': offsets, 'pagenum':pagenum, 'pageprev': pageprev})
+
+def chemical_analysislist(request):
+	api = MetPet("anonymous0@cs.rpi.edu",
+				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	data = api.getAllChemicalAnalysis()
+	chemicallist =[]
+	print dir(chemicallist)
+	for chemical in data.data['objects']:
+		print chemical['chemical_analysis_id']
+		chemicallist.append([chemical['chemical_analysis_id'], 
+							chemical['where_done']] )
+
+	return render(request,'chemicalanalysislist.html', {'chemicals':chemicallist})
+
+
+def subsamplelist(request):
+	api = MetPet("anonymous0@cs.rpi.edu",
+				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	data = api.getAllSubSamples()
+	subsamplelist =[]
+	# print dir(samplelist)
+	for subsample in data.data['objects']:
+		# print sample['sample_id']
+		subsamplelist.append([subsample['subsample_id'],subsample['name']] )
+
+	return render(request,'subsamplelist.html', {'subsamples':subsamplelist})
 
 # view function renders sampleview.html
 def sample(request, sample_id):
 
-	sampleobj = SampleObject(sample_id)
-	if sampleobj.exists():
-		subsamples=SubsampleTableObject(sample_id)
-		return render(request, 'sampleview.html',{'sample':sampleobj, 'subsamples':subsamples.attributes['*'],}) 
+	api = MetPet("anonymous0@cs.rpi.edu","24809ab2c593b544a491748094ed10d3cbffc699")
+	sampleobj = api.getSample(sample_id).data
+	# subsampleobj = api.getSubSample(sample_id).data
+	sampleuser = api.getUserByURI(sampleobj['user']).data
+	location = sampleobj['location']
+	location = location.split(" ")
+	longtitude = location[1].replace("(","")
+	latitude = location[2].replace(")","")
+	loc = [longtitude, latitude]
+	subsamplelist = []
+	filters = {"sample__sample_id": sampleobj["sample_id"], "limit": "0"}
+	data = api.searchSubsamples(filters)
+	for subsample in data.data['objects']:
+		# print sample['sample_id']
+		subsamplelist.append([subsample['subsample_id'],subsample['name'],
+							  subsample['public_data']])
+
+	print latitude
+	print longtitude
+	if sampleobj:
+		print sampleobj
+		# return render(request, 'sampleview.html',{'sample':sampleobj, 'subsamples':subsamples.attributes['*'],})
+		return render(request, 'sampleview.html',{'sample':sampleobj, 
+			'subsamples': subsamplelist,'user':sampleuser, 
+			'location': loc})
 	else:
 		return HttpResponse("Sample does not Exist")
-
 
 # view function renders subsampleview.html
 def subsample(request, subsample_id):
@@ -54,7 +250,9 @@ def subsample(request, subsample_id):
 		subsampleimgobj=SubsampleImagesTableObject(subsample_id)
 		chemanalyses=ChemicalAnalysisTableObject(subsample_id)
 		print chemanalyses.attributes['*']
-		return render(request, 'subsampleview.html',{'subsample':subsampleobj, 'chemanalyses':chemanalyses.attributes['*'], 'images':subsampleimgobj.attributes['*'],}) 
+		return render(request, 'subsampleview.html',{'subsample':subsampleobj,
+					  'chemanalyses':chemanalyses.attributes['*'],
+					  'images':subsampleimgobj.attributes['*'],}) 
 	else: 
 		return HttpResponse("Subsample does not exist")		
 

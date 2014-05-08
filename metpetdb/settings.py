@@ -1,6 +1,7 @@
 import os
 from getenv import env
 
+
 PROJECT_DIR = os.path.dirname(__file__)
 PROJECT_DIR = os.path.join(PROJECT_DIR, '..')
 FIXTURES_DIR = os.path.join(PROJECT_DIR, 'fixtures')

@@ -230,7 +230,8 @@ class User(models.Model):
             self.confirmation_code = generate_confirmation_code(self.name)
         super(User, self).save(**kwargs)
 
-
+    def __unicode__(self):
+        return str(self.user_id) + ' ' + self.name + ' ' + str(self.django_user)
 
     def auto_verify(self, confirmation_code):
         """Called to perform email verification.

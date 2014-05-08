@@ -40,20 +40,26 @@ url(r'^grant_contributor_access/([a-zA-Z0-9]*)/$',
     'tastyapi.views.grant_contributor_access'),
 url(r'^webservices/sample/(\d+)/$','webservices.views.sample', name='sample'),
 url(r'^webservices/subsample/(\d+)/$','webservices.views.subsample', name='subsample'),
-url(r'^webservices/chemicalanalysis/(\d+)/$', 'webservices.views.chemicalanalysis', name='chemanalysis'),
+url(r'^webservices/chemicalanalysis/(\d+)/$', 'webservices.views.chemicalanalysis', name='chemicalanalysis'),
 url(r'^api/metpetdb/$','webservices.views.metpetdb'),
 #sample list url
+url(r'^webservices/samplelist/(?P<pagenum>\d+)/$', 'webservices.views.samplelist', name='samplelist'),
+url(r'^webservices/samplelist/(?P<pagenum>\d+)/(?P<optional>.*)/$', 'webservices.views.previous', name='previous'),
+
 url(r'^webservices/samplelist/$', 'webservices.views.samplelist', name='samplelist'),
 url(r'^$', 'webservices.views.index', name='index'),
 url(r'^search/$', 'webservices.views.search', name='search'),
+# url(r'^search2/$', 'webservices.views.search2', name='search2'),
 #api calls
 url(r'^webservices/sample/(\d+)/json/$','webservices.api.sample'),
 url(r'^webservices/subsample/(\d+)/json/$','webservices.api.subsample'),
 url(r'^webservices/chemicalanalysis/(\d+)/json$', 'webservices.api.chemical_analysis'),
-url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'),
+# url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'),
 #below URLs- Not sure if these are used anywhere as of now
-url(r'^webservices/samples$', 'webservices.views.samples'),
-url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analyses'),
+# url(r'^webservices/samples$', 'webservices.views.samples'),
+# url(r'^webservices/samples/(?P<offset>\w+)/$', 'webservices.views.samples'),
+url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analysislist', name="chemicalanalyses"),
+url(r'^webservices/subsamples$', 'webservices.views.subsamplelist', name="subsamples"),
 
 url(r'^api/', include(api_v1.urls)),
 
