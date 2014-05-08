@@ -1,0 +1,56 @@
+[
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "sibel",
+            "first_name": "Sibel",
+            "last_name": "Adali",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-02-17T22:17:13.313Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sibel",
+            "email": "sibel@cs.rpi.edu",
+            "date_joined": "2014-02-17T22:17:13.313Z"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "auth.user",
+        "fields": {
+            "username": "john",
+            "first_name": "John",
+            "last_name": "Doe",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2014-02-17T22:17:13.313Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "john_doe_pwd",
+            "email": "john@doe.com",
+            "date_joined": "2012-07-28T22:17:13.313Z"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "auth.user",
+        "fields": {
+            "username": "jane",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2011-09-11T22:17:13.313Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "jane_doe_pwd",
+            "email": "jane@doe.com",
+            "date_joined": "2012-07-28T22:17:13.313Z"
+        }
+    }
+]

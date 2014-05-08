@@ -1,0 +1,38 @@
+[
+ {"table_name":"spatial_ref_sys", 
+  "values": [
+
+	{"srid": "1", 
+	"auth_name": "'A'",
+	"auth_srid": "1",
+	"srtext": "'A'", 
+	"proj4text": "'A'"},
+
+	{"srid": "2", 
+	"auth_name": "'B'",
+	"auth_srid": "2",
+	"srtext": "'B'", 
+	"proj4text": "'B'"},
+
+	{"srid": "3", 
+	"auth_name": "'C'",
+	"auth_srid": "3",
+	"srtext": "'C'", 
+	"proj4text": "'C'"},
+
+	{"srid": "4", 
+	"auth_name": "'D'",
+	"auth_srid": "4",
+	"srtext": "'D'", 
+	"proj4text": "'D'"},
+
+	{"srid": "5", 
+	"auth_name": "'E'",
+	"auth_srid": "5",
+	"srtext": "'E'", 
+	"proj4text": "'E'"}
+
+	]}
+]
+
+

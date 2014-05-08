@@ -1,0 +1,17 @@
+[
+ {"table_name":"regions", 
+  "values": [ 
+	{"region_id": "0", "name": "'region'"},
+	{"region_id": "1", "name": "'region1'"},
+	{"region_id": "2", "name": "'region2'"},
+	{"region_id": "3", "name": "'region3'"},
+	{"region_id": "4", "name": "'region4'"},
+	{"region_id": "5", "name": "'region5'"},
+	{"region_id": "6", "name": "'region6'"},
+	{"region_id": "7", "name": "'region7'"},
+	{"region_id": "8", "name": "'region8'"},
+	{"region_id": "9", "name": "'region9'"}
+	]}
+]
+
+

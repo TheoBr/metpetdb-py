@@ -1,0 +1,10 @@
+[
+ {"table_name":"mineral_relationships", 
+  "values": [ 
+	{"parent_mineral_id": "1", "child_mineral_id": "2"},
+	{"parent_mineral_id": "3", "child_mineral_id": "4"},
+	{"parent_mineral_id": "5", "child_mineral_id": "6"}
+	]}
+]
+
+

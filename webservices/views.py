@@ -1,18 +1,383 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from webservices.models import *
 import json
 import sys
-import os
+from django.shortcuts import render
 from django.db import connection as con
 from webservices.SampleQuery import *
 from webservices.utility import *
-from django.shortcuts import render, render_to_response
-from webservices.json2kml import *
-from django.core.files import File
-from django.core.servers.basehttp import FileWrapper
+from webservices.sample import SampleObject, SampleImagesObject
+from webservices.subsample import SubsampleObject, SubsampleTableObject, SubsampleImagesTableObject
+from webservices.chemicalanalysis import ChemicalAnalysisObject, ChemicalAnalysisTableObject
+from webservices.db import MetPet
+from tastyapi.models import Region, Sample, Reference, MetamorphicRegion
+
 #direct stdout to stderr so that it is logged by the webserver
 sys.stdout = sys.stderr
 
+#Main interface view
+def index(request):
+	return render(request, 'homepage.html')
+
+#Request to serve search.html
+def search(request):
+	#Lists for filtering in search
+	region_list = []
+	collector_list = []
+	reference_list = []
+	metamorphic_region_list = []
+	all_regions = Region.objects.all().order_by("name")
+	all_samples = Sample.objects.all().order_by("collector")
+	all_references = Reference.objects.all().order_by("name")
+	all_metamorphic_regions = MetamorphicRegion.objects.all().order_by("name")
+	#Populate lists
+	for region in all_regions:
+		region_list.append(region.name)
+	for sample in all_samples:
+		if sample.collector and sample.collector not in collector_list:
+			print sample.collector
+			collector_list.append(sample.collector)
+	for ref in all_references:
+		reference_list.append(ref.name)
+	for mmr in all_metamorphic_regions:
+		metamorphic_region_list.append(mmr.name)
+
+	search_terms = {}
+	error = False
+	#Loop through search terms from search GET request in search form
+	#Prepare dictionary of filters for api request
+	print request.GET
+	for search_term in request.GET:
+		print search_term
+		print request.GET[search_term]
+		if request.GET[search_term]:
+			if search_term != 'resource':
+				search_terms[search_term] = request.GET[search_term]
+	#Temporary credentials for api
+	username = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	api = MetPet(username,api_key)
+	#determine what resource to search for
+	if search_terms:
+		if request.GET['resource'] == 'sample':
+			#search for samples
+
+			data = api.searchSamples(filters=search_terms)
+			#parse results
+			search_results = []
+			for key in data.data['objects']:
+				search_results.append(key['sample_id'])
+			return render(request, 'search_results.html',
+				{'samples': search_results, 'query': ''})
+		if request.GET['resource'] == 'chemicalanalysis':
+			#search for chemical analyses
+			data = api.searchChemicals(filters=search_terms)
+			search_results = []
+			for key in data.data['objects']:
+				search_results.append(key['chemical_analysis_id'])
+			return render(request, 'search_results.html',
+				{'samples': search_results, 'query': ''})
+	else:
+		data = api.searchSamples()
+		return render(request, 'search_form.html',
+			{'samples': [], 'query': '', 'regions':region_list,
+			 'provenenances': collector_list, "references": reference_list,
+			  "mmrs": metamorphic_region_list})
+	return render(request, 'search_form.html', {'error': error})
+
+
+#just a list of samples
+def previous(request, pagenum=1, optional=''):
+	# cursor=con.cursor()
+	# cursor.execute("SELECT DISTINCT sample_id, number FROM samples ORDER BY sample_id, number")
+	# samplelist=cursor.fetchall()
+	
+	# for sample in samplelist:
+	# 	print sample[1]
+	pagenum = int(pagenum) - 40
+	api = MetPet("anonymous0@cs.rpi.edu",
+				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	user = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	if pagenum > 1:
+		data = api.getAllSamples(pagenum, user, api_key)
+	else:
+		data = api.getAllSamples()
+	nextlist = data.data['meta']['next']
+	samplelist =[]
+	offsets = []
+	total_count = data.data['meta']['total_count']
+	# print offset
+	print dir(samplelist)
+	for sample in data.data['objects']:
+		print sample['sample_id']
+		samplelist.append([sample['sample_id'],sample['number']] )
+	#CREATE PAGINATION
+	if total_count > 20:
+		pages = total_count / 20
+	for x in range(0,pages):
+		offsets.append(x*20)
+	pagenum = int(nextlist.split('=')[-1])
+	pageprev = pagenum - 20
+
+	return render(request,'samplelist.html', {'samples':samplelist,
+	 			  'nextURL': nextlist, 'total': total_count,
+	 			  'offsets': offsets, 'pagenum':pagenum, 'pageprev': pageprev})
+def samplelist(request, pagenum=1):
+	api = MetPet("anonymous0@cs.rpi.edu",
+		"24809ab2c593b544a491748094ed10d3cbffc699")
+	user = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	if pagenum > 1:
+		data = api.getAllSamples(pagenum, user, api_key)
+	else:
+		data = api.getAllSamples()
+	nextlist = data.data['meta']['next']
+	samplelist =[]
+	offsets = []
+	total_count = data.data['meta']['total_count']
+	# print offset
+	print dir(samplelist)
+	for sample in data.data['objects']:
+		print sample['sample_id']
+		samplelist.append([sample['sample_id'],sample['number']] )
+	#CREATE PAGINATION
+	if total_count > 20:
+		pages = total_count / 20
+	for x in range(0,pages):
+		offsets.append(x*20)
+	pagenum = int(nextlist.split('=')[-1])
+	pageprev = pagenum - 20
+
+	return render(request,'samplelist.html', {'samples':samplelist,
+				 'nextURL': nextlist, 'total': total_count, 'offsets': offsets,
+				 'pagenum': pagenum, 'pageprev': pageprev})
+
+def prevsamplelist(request, pagenum=1):
+	api = MetPet("anonymous0@cs.rpi.edu",
+		 		 "24809ab2c593b544a491748094ed10d3cbffc699")
+	user = "anonymous0@cs.rpi.edu"
+	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	if pagenum > 1:
+		pagenum -= 20
+		data = api.getAllSamples(pagenum, user, api_key)
+	else:
+		data = api.getAllSamples()
+	nextlist = data.data['meta']['next']
+	samplelist =[]
+	offsets = []
+	total_count = data.data['meta']['total_count']
+	# print offset
+	print dir(samplelist)
+	for sample in data.data['objects']:
+		print sample['sample_id']
+		samplelist.append([sample['sample_id'],sample['number']] )
+	#CREATE PAGINATION
+	if total_count > 20:
+		pages = total_count / 20
+	for x in range(0,pages):
+		offsets.append(x*20)
+	pagenum = int(nextlist.split('=')[-1])
+	pageprev = pagenum - 20
+
+	return render(request,'samplelist.html', {'samples':samplelist,
+	 			  'nextURL': nextlist, 'total': total_count,
+	 			  'offsets': offsets, 'pagenum':pagenum, 'pageprev': pageprev})
+
+def chemical_analysislist(request):
+	api = MetPet("anonymous0@cs.rpi.edu",
+				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	data = api.getAllChemicalAnalysis()
+	chemicallist =[]
+	print dir(chemicallist)
+	for chemical in data.data['objects']:
+		print chemical['chemical_analysis_id']
+		chemicallist.append([chemical['chemical_analysis_id'], 
+							chemical['where_done']] )
+
+	return render(request,'chemicalanalysislist.html', {'chemicals':chemicallist})
+
+
+def subsamplelist(request):
+	api = MetPet("anonymous0@cs.rpi.edu",
+				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	data = api.getAllSubSamples()
+	subsamplelist =[]
+	# print dir(samplelist)
+	for subsample in data.data['objects']:
+		# print sample['sample_id']
+		subsamplelist.append([subsample['subsample_id'],subsample['name']] )
+
+	return render(request,'subsamplelist.html', {'subsamples':subsamplelist})
+
+# view function renders sampleview.html
+def sample(request, sample_id):
+
+	api = MetPet("anonymous0@cs.rpi.edu","24809ab2c593b544a491748094ed10d3cbffc699")
+	sampleobj = api.getSample(sample_id).data
+	# subsampleobj = api.getSubSample(sample_id).data
+	sampleuser = api.getUserByURI(sampleobj['user']).data
+	location = sampleobj['location']
+	location = location.split(" ")
+	longtitude = location[1].replace("(","")
+	latitude = location[2].replace(")","")
+	loc = [longtitude, latitude]
+	subsamplelist = []
+	filters = {"sample__sample_id": sampleobj["sample_id"], "limit": "0"}
+	data = api.searchSubsamples(filters)
+	for subsample in data.data['objects']:
+		# print sample['sample_id']
+		subsamplelist.append([subsample['subsample_id'],subsample['name'],
+							  subsample['public_data']])
+
+	print latitude
+	print longtitude
+	if sampleobj:
+		print sampleobj
+		# return render(request, 'sampleview.html',{'sample':sampleobj, 'subsamples':subsamples.attributes['*'],})
+		return render(request, 'sampleview.html',{'sample':sampleobj, 
+			'subsamples': subsamplelist,'user':sampleuser, 
+			'location': loc})
+	else:
+		return HttpResponse("Sample does not Exist")
+
+# view function renders subsampleview.html
+def subsample(request, subsample_id):
+
+
+	subsampleobj =SubsampleObject(subsample_id)
+	
+	if subsampleobj.exists():
+		subsampleimgobj=SubsampleImagesTableObject(subsample_id)
+		chemanalyses=ChemicalAnalysisTableObject(subsample_id)
+		print chemanalyses.attributes['*']
+		return render(request, 'subsampleview.html',{'subsample':subsampleobj,
+					  'chemanalyses':chemanalyses.attributes['*'],
+					  'images':subsampleimgobj.attributes['*'],}) 
+	else: 
+		return HttpResponse("Subsample does not exist")		
+
+
+
+# view function renders chemanalysisview.html/json data depending on the request
+def chemicalanalysis(request, chemical_analysis_id):
+
+
+	chemanalysisobj =ChemicalAnalysisObject(chemical_analysis_id)
+	if chemanalysisobj.exists():
+		return render(request, 'chemicalanalysisview.html',{'chemicalanalysis':chemanalysisobj,}) 
+	else:
+		return HttpResponse("Chemical Analysis does not exist")
+
+
+def sample_images(request, sample_id):
+    sampleimagesobj = SampleImagesObject(sample_id)
+
+    if sampleimagesobj.exists():
+        return HttpResponse(sampleimagesobj.json())
+    else:
+        return HttpResponse("Sample does not Exist")
+
+
+
+'''S2S webservice view'''
+#Main faceted serach view
+def metpetdb(request):
+
+	formattype=request.GET.get('format','json')
+
+	returntype=request.GET.get('returntype','sampleresults')
+	
+	rocktype_id=request.GET.get('rocktype_id','')
+	
+	country=request.GET.get('country','')
+	
+	owner_id=request.GET.get('owner_id','')
+	
+	mineral_id=request.GET.get('mineral_id','')
+	
+	region_id=request.GET.get('region_id','')
+
+	metamorphic_grade_id=request.GET.get('metamorphic_grade_id','')
+	
+	metamorphic_region_id=request.GET.get('metamorphic_region_id','')
+	
+	publication_id= request.GET.get('publication_id','')
+	
+	if rocktype_id!='':
+		rocktype_id_list=rocktype_id.split(',')
+	else:
+		rocktype_id_list=[]
+
+	if mineral_id!='':
+		mineral_id_list=mineral_id.split(',')
+	else:
+		mineral_id_list=[]
+	
+	if owner_id!='':
+		owner_id_list=owner_id.split(',')
+	else:
+		owner_id_list=[]
+	
+	if country!='':
+		country_list=country.split(',')
+	else:
+		country_list=[]
+
+	if region_id!='':
+		region_id_list=region_id.split(',')
+	else:
+		region_id_list=[]
+	
+	if metamorphic_region_id!='':
+		metamorphic_region_id_list=metamorphic_region_id.split(',')
+	else:
+		metamorphic_region_id_list=[]
+
+	if metamorphic_grade_id!='':
+		metamorphic_grade_id_list=metamorphic_grade_id.split(',')
+	else:
+		metamorphic_grade_id_list=[]
+	
+	if publication_id!='':
+		publication_id_list=publication_id.split(',')
+	else:
+		publication_id_list=[]
+
+	
+	samples=SampleQuery(rock_type=rocktype_id_list,country=country_list,owner_id=owner_id_list,mineral_id=mineral_id_list,region_id=region_id_list,metamorphic_grade_id=metamorphic_grade_id_list, metamorphic_region_id=metamorphic_region_id_list, publication_id=publication_id_list)
+	#sample_test = SampleQuery(rock_type=[3,], country=[], owner_id=[139,], mineral_id=[3,], region_id=[52,], metamorphic_grade_id=[17,], metamorphic_region_id=[], publication_id=[])
+	if returntype=='rocktype_facet':
+		return HttpResponse(getFacetJSON(samples.rock_type_facet()), content_type="application/json")
+	elif returntype=='country_facet':
+		return HttpResponse(getFacetJSON(samples.country_facet()), content_type="application/json")
+	elif returntype=='mineral_facet':
+		return HttpResponse(getFacetJSON(samples.mineral_facet()), content_type="application/json")
+	elif returntype=='region_facet':
+		return HttpResponse(getFacetJSON(samples.region_facet()), content_type="application/json")
+	elif returntype=='owner_facet':
+		return HttpResponse(getFacetJSON(samples.owner_facet()), content_type="application/json")
+	elif returntype=='metamorphicgrade_facet':
+		return HttpResponse(getFacetJSON(samples.metamorphic_grade_facet()), content_type="application/json")
+	elif returntype=='metamorphicregion_facet':
+		return HttpResponse(getFacetJSON(samples.metamorphic_region_facet()), content_type="application/json")
+	elif returntype== 'publication_facet':
+		return HttpResponse(getFacetJSON(samples.publication_facet()), content_type="application/json")
+	elif returntype=='map':
+		#q=test.get_main_brief()
+		return HttpResponse(getAllJSON(samples.get_main_brief()), content_type="application/json")
+	else:
+		cursor=con.cursor()
+        cursor.execute(samples.get_count())
+        sample_count=cursor.fetchall()
+        #this is currently a hack to pass a html element containing the sample_count
+        htmlCount="<div id='sampleCount' display:'none'>"+str(sample_count[0][0])+"</div>"
+        print htmlCount
+        if sample_count>500:
+        	return HttpResponse(getSampleResults(samples.get_main(500))+htmlCount)
+        else:
+        	return HttpResponse(getSampleResults(samples.get_main(500)))
+
+#Not sure if below is used for anything right now
 #Function to format oxides by subscripting digits
 def formatOxide(species):
         retStr=""
@@ -25,10 +390,6 @@ def formatOxide(species):
                 i+=1
         return retStr
 
-
-#Request to serve search.html
-def search(request):
-	return render(request, 'index.html')
 
 def samples(request):
 	samples_data=[]
@@ -266,156 +627,7 @@ def chemical_analyses(request):
 
 	return HttpResponse("{\"items\":"+json.dumps(chemical_analyses_data)+"}")
 
-'''S2S webservice view'''
-#Main faceted serach view
-def metpetdb(request):
 
-	formattype=request.GET.get('format','json')
 
-	returntype=request.GET.get('returntype','sampleresults')
 	
-	rocktype_id=request.GET.get('rocktype_id','')
-	
-	country=request.GET.get('country_name','')
-	
-	owner_id=request.GET.get('owner_id','')
-	
-	mineral_id=request.GET.get('mineral_id','')
-	#print mineral_id
-
-	mineral2_id=request.GET.get('mineral2_id','')
-	#print mineral2_id
-	
-	region_id=request.GET.get('region_id','')
-
-	metamorphic_grade_id=request.GET.get('metamorphicgrade_id','')
-	
-	metamorphic_region_id=request.GET.get('metamorphicregion_id','')
-
-	publication_id= request.GET.get('publication_id','')
-	
-	if rocktype_id!='':
-		rocktype_id_list=rocktype_id.split(',')
-	else:
-		rocktype_id_list=[]
-
-	if mineral_id!='':
-		mineral1_id_list=mineral_id.split(',')
-	else:
-		mineral1_id_list=[]
-
-	if mineral2_id!='':
-		mineral2_id_list=mineral2_id.split(',')
-	else:
-		mineral2_id_list=[]
-	
-	if owner_id!='':
-		owner_id_list=owner_id.split(',')
-	else:
-		owner_id_list=[]
-	
-	if country!='':
-		country_list=country.split(',')
-	else:
-		country_list=[]
-
-	if region_id!='':
-		region_id_list=region_id.split(',')
-	else:
-		region_id_list=[]
-	
-	if metamorphic_region_id!='':
-		metamorphic_region_id_list=metamorphic_region_id.split(',')
-	else:
-		metamorphic_region_id_list=[]
-
-	if metamorphic_grade_id!='':
-		metamorphic_grade_id_list=metamorphic_grade_id.split(',')
-	else:
-		metamorphic_grade_id_list=[]
-	
-	if publication_id!='':
-		publication_id_list=publication_id.split(',')
-	else:
-		publication_id_list=[]
-		
-	#mineral facet assemblage is a list of lists
-
-	mineral_id_list =[]
-	mineral_id_list.append(mineral1_id_list)
-	mineral_id_list.append(mineral2_id_list)
-
-
-	samples=SampleQuery(rock_type=rocktype_id_list,country=country_list,owner_id=owner_id_list,mineral_id=mineral_id_list,region_id=region_id_list,metamorphic_grade_id=metamorphic_grade_id_list, metamorphic_region_id=metamorphic_region_id_list, publication_id=publication_id_list)
-	#print samples
-	#sample_test = SampleQuery(rock_type=[], country=[], owner_id=[], mineral_id=[], region_id=[], metamorphic_grade_id=[13,], metamorphic_region_id=[], publication_id=[])
-
-	if returntype=='rocktype_facet':
-		return HttpResponse(getFacetJSON(samples.rock_type_facet()), content_type="application/json")
-	elif returntype=='country_facet':
-		return HttpResponse(getFacet(samples.country_facet()), content_type="application/json")
-	elif returntype=='mineral_facet':
-		return HttpResponse(getFacetJSON(samples.mineral_facet()), content_type="application/json")
-	elif returntype=='mineral2_facet':
-		return HttpResponse(getFacetJSON(samples.mineral_facet2()), content_type="application/json")
-	elif returntype=='region_facet':
-		return HttpResponse(getFacetJSON(samples.region_facet()), content_type="application/json")
-	elif returntype=='owner_facet':
-		return HttpResponse(getFacetJSON(samples.owner_facet()), content_type="application/json")
-	elif returntype=='metamorphicgrade_facet':
-		return HttpResponse(getFacetJSON(samples.metamorphic_grade_facet()), content_type="application/json")
-	elif returntype=='metamorphicregion_facet':
-		return HttpResponse(getFacetJSON(samples.metamorphic_region_facet()), content_type="application/json")
-	elif returntype== 'publication_facet':
-		return HttpResponse(getFacetJSON(samples.publication_facet()), content_type="application/json")
-	elif returntype=='map':
-		return HttpResponse(getAllJSON(samples.get_main_brief()), content_type="application/json")
-	else:
-		cursor=con.cursor()
-        cursor.execute(samples.get_count())
-        sample_count=cursor.fetchall()
-        #this is currently a hack to pass a html element containing the sample_count
-        htmlCount="<div id='sampleCount' display:'none'>"+str(sample_count[0][0])+"</div>"
-        #print htmlCount
-        if sample_count>500:
-        	return HttpResponse(getSampleResults(samples.get_main(500))+htmlCount)
-        else:
-        	return HttpResponse(getSampleResults(samples.get_main(500)))
-	
-'''
-def earth(request):
-		PROJECT_DIR = os.path.dirname(__file__)
-		PROJECT_DIR = os.path.join(PROJECT_DIR, '..')
-		KML_DIR = os.path.join(PROJECT_DIR, 'web')
-		data = request.POST.get('jsondata')
-		items = json.loads(data)
-		f = open(KML_DIR+'/'+'BasicKML.kml','w')
-		with open(KML_DIR+'/'+'BasicKML.kml', 'w') as f:
-			myfile = File(f)
-			myfile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-			myfile.write("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n")
-			myfile.write("  <Document>\n")
-			for item in items:
-				myfile.write("   <Folder>\n")
-				myfile.write("    <name>"+item["sample_number"]+"</name>\n")
-				myfile.write("     <Placemark>\n")
-				myfile.write("     <name>"+item["sample_number"]+"</name>\n")
-				myfile.write("      <Description>"+"Rocktype: "+item["rock_type"]+"Owner: "+item["owner"]+"</Description>\n")
-				myfile.write("       <Point><coordinates>"+item["lat"]+","+item["lon"]+"</coordinates></Point>\n")
-				myfile.write("     </Placemark>\n")
-				myfile.write("   </Folder>")
-				myfile.write("\n")
-			myfile.write("  </Document>\n</kml>\n")
-			myfile.closed
-			f.closed
-			f = open(KML_DIR+'/'+'BasicKML.kml', 'r+')
-			x= File(f)
-			my_data = x.read()
-			print my_data
-			x.closed
-			f.closed
-			response = HttpResponse(content_type='application/vnd.google-earth.kml+xml')
-			response['Content-Disposition'] = 'attachment; filename="BasicKML.kml"'
-			response.write(file(KML_DIR+'/'+'BasicKML.kml', "rb").read())
-		return response
-'''
+			

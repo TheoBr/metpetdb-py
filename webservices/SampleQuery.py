@@ -64,34 +64,26 @@ class SampleQuery(object):
         self.publication_id_selections = publication_id
         self.VIEW_NAME = 'full_sample_results'
         self.SHORT_VIEW_NAME = 'basic_sample_results'
-        if len (rock_type + country + owner_id + mineral_id + region_id +metamorphic_grade_id + metamorphic_region_id +publication_id) == 0:
+        if len (rock_type + country + owner_id + mineral_id + region_id) == 0:
             self.conditions_set = False
         else:
             self.conditions_set = True
 
-    def get_view_name( self, type='full' ): 
+    def get_view_name( self ): 
         """ Use the simpler view if no conditions relevant to the 
-            complex view are set. If type is full, then use view_name
-            always.
+            complex view are set. 
 
         """
-        if type == 'full':
-            if len(self.clean_multi_selection_list(self.mineral_id_selections) ) == 2 :
-                return self.VIEW_NAME + ' sr , ' + self.VIEW_NAME + ' sr2 ' 
-            else:
-                return self.VIEW_NAME + ' sr ' 
-        elif not self.conditions_set:
+        if not self.conditions_set:
             return self.SHORT_VIEW_NAME
         elif (len(self.mineral_id_selections) + \
                   len(self.region_id_selections) + \
                   len(self.metamorphic_grade_id_selections) + \
                   len(self.metamorphic_region_id_selections) + \
                   len(self.publication_id_selections)) == 0:
-            return self.SHORT_VIEW_NAME + ' sr ' 
-        elif len(self.clean_multi_selection_list(self.mineral_id_selections) ) == 2 :
-            return self.VIEW_NAME + ' sr , ' + self.VIEW_NAME + ' sr2 ' 
+            return self.SHORT_VIEW_NAME
         else:
-            return self.VIEW_NAME + ' sr ' 
+            return self.VIEW_NAME
 
     def set_rock_type( self, rock_type_list ):
         """ Specify a list of rock_type_ids as input, -1 for null values. """
@@ -123,22 +115,22 @@ class SampleQuery(object):
         if len(region_id_list) > 0:
             self.conditions_set = True
 
-    def set_metamorphic_grade_id( self, metamorphic_grade_id_list ):
+    def set_metamorphic_grade_id( self, id_list ):
         """ Specify a list of metamorphic grade ids as input,
              -1 for null values. 
 
         """
-        self.metamorphic_grade_id_selections = metamorphic_grade_id_list
-        if len(metamorphic_grade_id_list) > 0:
+        self.metamorphic_grade_id_selections = id_list
+        if len(id_list) > 0:
             self.conditions_set = True
 
-    def set_metamorphic_region_id( self, metamorphic_region_id_list ):
+    def set_metamorphic_region_id( self, id_list ):
         """ Specify a list of metamorphic region_ids as input,
              -1 for null values. 
 
         """
-        self.metamorphic_region_id_selections = metamorphic_region_id_list
-        if len(metamorphic_region_id_list) > 0:
+        self.metamorphic_region_id_selections = id_list
+        if len(id_list) > 0:
             self.conditions_set = True
 
     def set_publication_id( self, publication_id_list ):
@@ -153,122 +145,43 @@ class SampleQuery(object):
    
         """
         (where_str, params) = self.get_where()
-        str = "SELECT " + field + ", count(distinct sr.sample_id) " \
-            "FROM " + self.get_view_name('full') + " " + where_str + \
-            "GROUP BY " + field
-        str = str %params
-        return str
-
-    def get_facet2 ( self, field ):
-        """ Given the attributes needed for a facet, constructs
-            the necessary query and returns the string, but
-            without the count
-   
-        """
-        (where_str, params) = self.get_where()
-        str = "SELECT " + field + \
-            "FROM " + self.get_view_name('full') + " " + where_str + \
+        str = "SELECT " + field + ", count(distinct sample_id) " \
+            "FROM " + self.VIEW_NAME + " " + where_str + \
             "GROUP BY " + field
         str = str %params
         return str
 
     def owner_facet( self ) :
         """ Return list of owners for the given query. """
-        return self.get_facet( "sr.owner_id, sr.owner_name " )
+        return self.get_facet( "owner_id, owner_name " )
 
     def rock_type_facet( self ) :
         """ Return list of rock types for the given query. """
-        return self.get_facet( "sr.rock_type_id, sr.rock_type_name " )
+        return self.get_facet( "rock_type_id, rock_type_name " )
 
     def country_facet( self ) :
         """ Return list of countries for the given query. """
-        return self.get_facet( "sr.country " )
+        return self.get_facet( "country " )
 
     def mineral_facet( self ) :
         """ Return list of minerals for the given query. """
-        return self.get_facet( "sr.sample_mineral_id, sr.sample_mineral_name " )
-    
-    def mineral_facet2( self ) :
-        """ Return list of minerals for the given query. """
-        subquery = self.get_facet2( "sr.sample_id " )
-
-        query = "SELECT sample_mineral_id, sample_mineral_name , " \
-                "count(distinct sample_id) " \
-                "FROM full_sample_results " \
-                "WHERE sample_id in (" + subquery + ")" \
-                "GROUP BY sample_mineral_id, sample_mineral_name "
-        return query
-
+        return self.get_facet( "sample_mineral_id, sample_mineral_name " )
 
     def region_facet( self ) :
         """ Return list of regions for the given query. """
-        return self.get_facet( "sr.sample_region_id, sr.sample_region_name " )
+        return self.get_facet( "sample_region_id, sample_region_name " )
 
     def metamorphic_region_facet( self ) :
         """ Return list of metamorphic regions for the given query. """
-        return self.get_facet( "sr.sample_metamorphic_region_id, sr.sample_metamorphic_region" )
+        return self.get_facet( "sample_metamorphic_region_id, sample_metamorphic_region" )
 
     def metamorphic_grade_facet( self ) :
         """ Return list of metamorphic grades for the given query. """
-        return self.get_facet( "sr.sample_metamorphic_grade_id, sr.sample_metamorphic_grade" )
+        return self.get_facet( "sample_metamorphic_grade_id, sample_metamorphic_grade" )
 
     def publication_facet( self ) :
         """ Return all publication info in a single facet. """
-        return self.get_facet( "sr.publication_id, sr.author" )
-
-    def clean_multi_selection_list (self, inputvalue_list) :
-        value_list = []
-        for item in inputvalue_list:
-            if len(item) != 0:
-                value_list.append(item[:])
-        return value_list
-
-    def get_multi_selection ( self, field, field2, inputvalue_list ) :
-        """ Assumes the values are lists of integers corresponding to ids,
-            and the field is the name of an attribute given as a string.
-            Example: 'mineral_type_id' [[1,2,3],[],[4,5]]
-            corresponding to statement:
-                 (mineral_type_id in (1,2,3)) AND (mineral_type_id in (4,5))
-        """
-
-        where_segment = ""
-        params = {}
-        
-        value_list = self.clean_multi_selection_list(inputvalue_list)
-        if len(value_list) == 0:
-            return ("", {})
-        elif len(value_list) == 1: ## a single list of values
-            params[field] = ""
-            where_segment = " and (" + field + " in (%(" + field + ")s)) "
-            for item in value_list[0]:
-                params[field] += str(item) + ","
-            params[field] = params[field].strip(",") 
-        else: ## multiple value fields
-            ## must join the view with itself
-            where_segment = " and sr.sample_id = sr2.sample_id "
-            ## first field
-            ## now field2
-
-            values = value_list[0]
-            field_name = field + '1'
-            params[field_name] = ""
-            where_segment += " and (" + field + \
-                             " in (%(" + field_name + ")s)) "
-            for item in values:
-                params[field_name] += str(item) + ","
-            params[field_name] = params[field_name].strip(",") 
-
-            values = value_list[1]
-            field_name = field + '2'
-            params[field_name] = ""
-            where_segment += " and (" + field2 + \
-                             " in (%(" + field_name + ")s)) "
-            for item in values:
-                params[field_name] += str(item) + ","
-            params[field_name] = params[field_name].strip(",") 
-
-        return (where_segment, params)
-
+        return self.get_facet( "publication_id, author" )
 
     def get_selection ( self, field, value_set ) :
         """ Assumes the values are integers corresponding to ids,
@@ -304,39 +217,39 @@ class SampleQuery(object):
 
         """
         params = {}
-        query_str = "WHERE sr.public_data = 'Y' "
+        query_str = "WHERE public_data = 'Y' "
         if self.conditions_set:
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.rock_type_id', self.rock_type_selections))
+                    self.get_selection('rock_type_id', self.rock_type_selections))
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.country', self.country_selections))
+                    self.get_selection('country', self.country_selections))
 
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.owner_id', self.owner_id_selections))
+                    self.get_selection('owner_id', self.owner_id_selections))
 
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_multi_selection('sr.sample_mineral_id', 'sr2.sample_mineral_id', self.mineral_id_selections))
+                    self.get_selection('sample_mineral_id', self.mineral_id_selections))
 
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.sample_region_id', self.region_id_selections))
+                    self.get_selection('sample_region_id', self.region_id_selections))
 
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.sample_metamorphic_grade_id',\
+                    self.get_selection('sample_metamorphic_grade_id',\
                                            self.metamorphic_grade_id_selections))
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.sample_metamorphic_region_id',\
+                    self.get_selection('sample_metamorphic_region_id',\
                                            self.metamorphic_region_id_selections))
 
             query_str = self.merge( \
                 query_str, params,\
-                    self.get_selection('sr.publication_id',\
+                    self.get_selection('publication_id',\
                                            self.publication_id_selections))
 
         return (query_str + " ", params)
@@ -347,8 +260,8 @@ class SampleQuery(object):
 
     def get_main_brief ( self, limit=None ) :
         (where_str,params) = self.get_where() 
-        attributes = " sr.sample_id, sr.sample_number, sr.rock_type_name, "\
-            "sr.owner_name, sr.latitude, sr.longitude, sr.current_location " 
+        attributes = " sample_id, sample_number, rock_type_name, "\
+            "owner_name, latitude, longitude, current_location " 
         query_str =\
             "SELECT " + attributes + \
             "FROM  " + self.get_view_name() + " " + where_str + \
@@ -360,14 +273,14 @@ class SampleQuery(object):
 #comma after current_location
     def get_main ( self, limit=None ) :
         (where_str,params) = self.get_where() 
-        attributes = " sr.sample_id, sr.sample_number, sr.rock_type_name, " + \
-            "sr.owner_name, sr.latitude, sr.longitude, sr.current_location, " + \
-            "scv.num_subsamples, scv.num_chemical_analyses, scv.num_images "
+        attributes = " sample_id, sample_number, rock_type_name, " + \
+            "owner_name, latitude, longitude, current_location, " + \
+            "num_subsamples, num_chemical_analyses, num_images "
 
         query_str =\
             "SELECT " + attributes + \
-            "FROM  " + self.get_view_name() + ", sample_counts_view scv " +  \
-            where_str + " AND sr.sample_id = scv.count_sample_id "\
+            "FROM  " + self.get_view_name() + ",sample_counts_view " +  \
+            where_str + " AND sample_id = count_sample_id "\
             "GROUP BY" + attributes
         if limit != None:
             query_str += " LIMIT " + str(limit)
@@ -376,45 +289,19 @@ class SampleQuery(object):
     def get_count ( self ) :
         (where_str,params) = self.get_where() 
         query_str =\
-            "SELECT count(DISTINCT sr.sample_id) " \
+            "SELECT count(DISTINCT sample_id) " \
             "FROM  " + self.get_view_name() + " " + where_str 
         return query_str %params
 
 if __name__ == '__main__':
     q = SampleQuery()
 
-    #print str(q)
+    print str(q)
 
-    p = SampleQuery(rock_type=[], country=['USA',], owner_id=[], \
-                    mineral_id = [[],[]], region_id = [], \
-                    metamorphic_grade_id = [], \
-                    metamorphic_region_id = [], publication_id = [] ) 
+    p = SampleQuery(rock_type=[1,2], country=["'United States'"], owner_id=[4,5,-1], \
+                       mineral_id = [-1], region_id = [], publication_id = [1,2,3] ) 
 
-
-    print
-    print p.mineral_facet()
-    print
-    print p.mineral_facet2()
-    print
-
-    print p.owner_facet()
-    print
-    print p.rock_type_facet()
-    print
-    print p.country_facet()
-    print
-    print p.mineral_facet()
-    print
-    print p.region_facet()
-    print
-    print p.publication_facet()
-    print
-
-
-    ##print str(p)
-
-'''
-
+    '''
     print str(p)
 
     r = SampleQuery(mineral_id = [-1] ) 
@@ -426,6 +313,12 @@ if __name__ == '__main__':
 
     print q.owner_facet()
 
+    print p.owner_facet()
+    print p.rock_type_facet()
+    print p.country_facet()
+    print p.mineral_facet()
+    print p.region_facet()
+    print p.publication_facet()
 
     print "********"
     print p.metamorphic_region_facet()
@@ -446,6 +339,4 @@ if __name__ == '__main__':
 
     print q.get_main(10)'''
 
-    #print q.get_main_brief()
-
-
+    print q.get_main_brief()

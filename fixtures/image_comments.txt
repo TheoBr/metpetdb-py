@@ -1,0 +1,24 @@
+[
+ {"table_name":"image_comments", 
+  "values": [
+	{"comment_id": "1",
+	"image_id": "1",
+	"comment_text": "'comment1'",
+	"version": "1"},
+
+	{"comment_id": "2",
+	"image_id": "1",
+	"comment_text": "'comment2'",
+	"version": "1"},
+
+	{"comment_id": "3",
+	"image_id": "2",
+	"comment_text": "'comment3'",
+	"version": "1"},
+
+	{"comment_id": "4",
+	"image_id": "2",
+	"comment_text": "'comment4'",
+	"version": "1"}
+	]}
+]

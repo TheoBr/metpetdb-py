@@ -1,0 +1,15 @@
+[
+ {"table_name":"rock_type", 
+  "values": [ 
+	{"rock_type_id": "0", "rock_type": "'Rock'"},
+	{"rock_type_id": "1", "rock_type": "'Rock1'"},	
+	{"rock_type_id": "2", "rock_type": "'Rock2'"},
+	{"rock_type_id": "3", "rock_type": "'Rock3'"},
+	{"rock_type_id": "4", "rock_type": "'Rock4'"},
+	{"rock_type_id": "5", "rock_type": "'Rock5'"},
+	{"rock_type_id": "6", "rock_type": "'Rock6'"},
+	{"rock_type_id": "7", "rock_type": "'Rock7'"}
+	]}
+]
+
+

@@ -1,0 +1,30 @@
+[
+ {"table_name":"element_mineral_types", 
+  "values": [
+
+	{"element_id": "1", "mineral_type_id": "0"},
+	{"element_id": "1", "mineral_type_id": "1"},
+	{"element_id": "1", "mineral_type_id": "2"},
+	{"element_id": "1", "mineral_type_id": "3"},
+	{"element_id": "1", "mineral_type_id": "4"},
+	{"element_id": "1", "mineral_type_id": "5"},
+	{"element_id": "1", "mineral_type_id": "6"},
+	{"element_id": "2", "mineral_type_id": "0"},
+	{"element_id": "2", "mineral_type_id": "1"},
+	{"element_id": "2", "mineral_type_id": "2"},
+	{"element_id": "2", "mineral_type_id": "3"},
+	{"element_id": "2", "mineral_type_id": "4"},
+	{"element_id": "2", "mineral_type_id": "5"},
+	{"element_id": "2", "mineral_type_id": "6"},
+	{"element_id": "3", "mineral_type_id": "0"},
+	{"element_id": "3", "mineral_type_id": "1"},
+	{"element_id": "3", "mineral_type_id": "2"},
+	{"element_id": "3", "mineral_type_id": "3"},
+	{"element_id": "3", "mineral_type_id": "4"},
+	{"element_id": "3", "mineral_type_id": "5"},
+	{"element_id": "3", "mineral_type_id": "6"}
+
+	]}
+]
+
+

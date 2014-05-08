@@ -1,0 +1,12 @@
+[
+ {"table_name":"uploaded_files", 
+  "values": [
+	{"uploaded_file_id": "1", "hash": "'A'", "filename": "'A'", "\"time\"": "'1984-10-27 00:00:10'" , "user_id": "1"},
+	{"uploaded_file_id": "2", "hash": "'B'", "filename": "'B'", "\"time\"": "'1984-10-27 00:00:20'" , "user_id": "1"},
+	{"uploaded_file_id": "3", "hash": "'C'", "filename": "'C'", "\"time\"": "'1984-10-27 00:00:30'" , "user_id": "2"},
+	{"uploaded_file_id": "4", "hash": "'D'", "filename": "'D'", "\"time\"": "'1984-10-27 00:00:40'" , "user_id": "2"}
+
+	]}
+]
+
+

@@ -1,0 +1,36 @@
+[
+ {"table_name":"projects", 
+  "values": [
+
+	{"project_id": "1", 
+	"version": "1",
+	"user_id": "1",
+	"name": "'project1'", 
+	"description": "'project'",
+	"isactive": "'Y'"},
+
+	{"project_id": "2", 
+	"version": "1",
+	"user_id": "1",
+	"name": "'project2'", 
+	"description": "'project'",
+	"isactive": "'Y'"},
+
+	{"project_id": "3", 
+	"version": "1",
+	"user_id": "1",
+	"name": "'project3'", 
+	"description": "'project'",
+	"isactive": "'Y'"},
+
+	{"project_id": "4", 
+	"version": "1",
+	"user_id": "1",
+	"name": "'project4'", 
+	"description": "'project'",
+	"isactive": "'Y'"}
+
+	]}
+]
+
+

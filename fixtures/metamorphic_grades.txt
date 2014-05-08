@@ -1,0 +1,17 @@
+[
+ {"table_name":"metamorphic_grades", 
+  "values": [ 
+	{"metamorphic_grade_id": "1", "name": "'mg1'"},
+	{"metamorphic_grade_id": "2", "name": "'mg2'"},
+	{"metamorphic_grade_id": "3", "name": "'mg3'"},
+	{"metamorphic_grade_id": "4", "name": "'mg4'"},
+	{"metamorphic_grade_id": "5", "name": "'mg5'"},
+	{"metamorphic_grade_id": "6", "name": "'mg6'"},
+	{"metamorphic_grade_id": "7", "name": "'mg7'"},
+	{"metamorphic_grade_id": "8", "name": "'mg8'"},
+	{"metamorphic_grade_id": "9", "name": "'mg9'"},
+	{"metamorphic_grade_id": "10", "name": "'mg10'"}
+	]}
+]
+
+

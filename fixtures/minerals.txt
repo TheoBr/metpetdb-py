@@ -1,0 +1,14 @@
+[
+ {"table_name":"minerals", 
+  "values": [ 
+	{"mineral_id": "1", "real_mineral_id": "1", "name": "'mineral'"}, 
+	{"mineral_id": "2", "real_mineral_id": "2", "name": "'mineral2'"}, 
+	{"mineral_id": "3", "real_mineral_id": "3", "name": "'mineral3'"}, 
+	{"mineral_id": "4", "real_mineral_id": "4", "name": "'mineral4'"}, 
+	{"mineral_id": "5", "real_mineral_id": "5", "name": "'mineral5'"}, 
+	{"mineral_id": "6", "real_mineral_id": "6", "name": "'mineral6'"}, 
+	{"mineral_id": "7", "real_mineral_id": "7", "name": "'mineral7'"}]}
+]
+
+
+

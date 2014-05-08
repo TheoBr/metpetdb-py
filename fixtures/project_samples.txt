@@ -1,0 +1,10 @@
+[
+ {"table_name":"project_samples", 
+  "values": [
+	{"project_id": "1", "sample_id": "1"},
+	{"project_id": "2", "sample_id": "2"},
+	{"project_id": "3", "sample_id": "3"}
+
+
+	]}
+]

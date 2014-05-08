@@ -1,0 +1,19 @@
+[
+ {"table_name":"sample_metamorphic_regions", 
+  "values": [
+	{"sample_id": "1", "metamorphic_region_id": "1"},
+	{"sample_id": "2", "metamorphic_region_id": "2"},
+	{"sample_id": "3", "metamorphic_region_id": "3"},
+	{"sample_id": "1", "metamorphic_region_id": "4"},
+	{"sample_id": "2", "metamorphic_region_id": "5"},
+	{"sample_id": "4", "metamorphic_region_id": "1"},
+	{"sample_id": "4", "metamorphic_region_id": "2"},
+	{"sample_id": "4", "metamorphic_region_id": "4"},
+	{"sample_id": "5", "metamorphic_region_id": "1"},
+	{"sample_id": "5", "metamorphic_region_id": "2"},
+	{"sample_id": "5", "metamorphic_region_id": "5"}
+	]}
+]
+
+  
+

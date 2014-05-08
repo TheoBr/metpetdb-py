@@ -1,0 +1,14 @@
+[
+ {"table_name":"image_type", 
+  "values": [
+	{"image_type_id": "1", "image_type": "'ONE'", "abbreviation": "'A'", "comments": "'None'"},
+	{"image_type_id": "2", "image_type": "'TWO'", "abbreviation": "'B'", "comments": "'None'"},
+	{"image_type_id": "3", "image_type": "'THREE'", "abbreviation": "'C'", "comments": "'None'"},
+	{"image_type_id": "4", "image_type": "'FOUR'", "abbreviation": "'D'", "comments": "'None'"},
+	{"image_type_id": "5", "image_type": "'FIVE'", "abbreviation": "'E'", "comments": "'None'"},
+	{"image_type_id": "6", "image_type": "'SIX'", "abbreviation": "'F'", "comments": "'None'"}
+
+	]}
+]
+
+

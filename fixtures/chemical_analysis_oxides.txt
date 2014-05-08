@@ -1,0 +1,22 @@
+[
+ {"table_name":"chemical_analysis_oxides", 
+  "values": [ 
+	{"chemical_analysis_id": "1",
+	"oxide_id": "1",
+	"amount": "10",
+	"\"precision\"": "20",
+	"precision_type": "'ABS'", 
+	"measurement_unit": "'A'",
+	"min_amount": "10", 
+	"max_amount": "20"},
+
+	{"chemical_analysis_id": "2",
+	"oxide_id": "2",
+	"amount": "20",
+	"\"precision\"": "40",
+	"precision_type": "'REL'", 
+	"measurement_unit": "'B'",
+	"min_amount": "10", 
+	"max_amount": "20"}]}
+]
+

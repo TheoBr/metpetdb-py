@@ -1,0 +1,48 @@
+[
+ {"table_name":"geometry_columns", 
+  "values": [
+
+	{"f_table_catalog": "'A'", 
+	"f_table_schema": "'A'",
+	"f_table_name": "'A'",
+	"f_geometry_column": "'A'",
+	"coord_dimension": "0",
+	"srid": "0", 
+	"type":"'X'"},
+
+	{"f_table_catalog": "'B'", 
+	"f_table_schema": "'B'",
+	"f_table_name": "'B'",
+	"f_geometry_column": "'B'",
+	"coord_dimension": "0",
+	"srid": "0", 
+	"type":"'X'"},
+
+	{"f_table_catalog": "'C'", 
+	"f_table_schema": "'C'",
+	"f_table_name": "'C'",
+	"f_geometry_column": "'C'",
+	"coord_dimension": "0",
+	"srid": "0", 
+	"type":"'X'"},
+
+	{"f_table_catalog": "'D'", 
+	"f_table_schema": "'D'",
+	"f_table_name": "'D'",
+	"f_geometry_column": "'D'",
+	"coord_dimension": "0",
+	"srid": "0", 
+	"type":"'X'"},
+
+	{"f_table_catalog": "'E'", 
+	"f_table_schema": "'E'",
+	"f_table_name": "'E'",
+	"f_geometry_column": "'E'",
+	"coord_dimension": "0",
+	"srid": "0", 
+	"type":"'X'"}
+
+	]}
+]
+
+

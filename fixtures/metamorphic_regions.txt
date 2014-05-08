@@ -1,0 +1,38 @@
+[
+ {"table_name":"metamorphic_regions", 
+  "values": [ 
+	{"metamorphic_region_id": "1", 
+	"name": "'mr1'",
+	"shape": "NULL",
+	"description": "'D1'",
+	"label_location": "NULL"},
+
+	{"metamorphic_region_id": "2", 
+	"name": "'mr2'",
+	"shape": "NULL",
+	"description": "'D2'",
+	"label_location": "NULL"},
+
+	{"metamorphic_region_id": "3", 
+	"name": "'mr3'",
+	"shape": "NULL",
+	"description": "'D3'",
+	"label_location": "NULL"},
+
+	{"metamorphic_region_id": "4", 
+	"name": "'mr4'",
+	"shape": "NULL",
+	"description": "'D4'",
+	"label_location": "NULL"},
+
+	{"metamorphic_region_id": "5", 
+	"name": "'mr5'",
+	"shape": "NULL",
+	"description": "'D5'",
+	"label_location": "NULL"}
+
+
+	]}
+]
+
+

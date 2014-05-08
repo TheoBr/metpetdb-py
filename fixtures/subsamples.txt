@@ -1,0 +1,51 @@
+[
+ {"table_name":"subsamples", 
+  "values": [
+	{"subsample_id": "1",
+	"version": "1",
+	"public_data": "'Y'",
+	"sample_id": "1",
+	"user_id": "0",
+	"grid_id": "1",
+	"name": "'A'",
+	"subsample_type_id": "1"},
+
+	{"subsample_id": "2",
+	"version": "1",
+	"public_data": "'Y'",
+	"sample_id": "1",
+	"user_id": "1",
+	"grid_id": "2",
+	"name": "'B'",
+	"subsample_type_id": "2"},
+	
+	{"subsample_id": "3",
+	"version": "1",
+	"public_data": "'Y'",
+	"sample_id": "1",
+	"user_id": "2",
+	"grid_id": "3",
+	"name": "'C'",
+	"subsample_type_id": "3"},
+
+	{"subsample_id": "4",
+	"version": "1",
+	"public_data": "'Y'",
+	"sample_id": "5",
+	"user_id": "0",
+	"grid_id": "4",
+	"name": "'D'",
+	"subsample_type_id": "4"
+	},
+
+	{"subsample_id": "5",
+	"version": "1",
+	"public_data": "'Y'",
+	"sample_id": "4",
+	"user_id": "1",
+	"grid_id": "5",
+	"name": "'E'",
+	"subsample_type_id": "5"}
+	]}
+]
+

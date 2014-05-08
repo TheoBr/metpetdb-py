@@ -1,0 +1,11 @@
+[
+ {"table_name":"xray_image", 
+  "values": [
+	{"image_id": "1", "element": "'A'", "dwelltime": "1", "current": "2", "voltage": "3"},
+	{"image_id": "2", "element": "'B'", "dwelltime": "1", "current": "2", "voltage": "3"},
+	{"image_id": "3", "element": "'C'", "dwelltime": "1", "current": "2", "voltage": "3"}
+
+	]}
+]
+
+

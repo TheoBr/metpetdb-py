@@ -1,10 +1,11 @@
-# Django settings for metpetdb project.
-
 import os
+from getenv import env
+
 
 PROJECT_DIR = os.path.dirname(__file__)
 PROJECT_DIR = os.path.join(PROJECT_DIR, '..')
 FIXTURES_DIR = os.path.join(PROJECT_DIR, 'fixtures')
+HOST_NAME = env('HOST_NAME')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -13,16 +14,35 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = env('EMAIL_PORT')
+
+AUTHENTICATION_BACKENDS = ('tastyapi.auth.DACBackend',)
+
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'tastyapi.hashing.SHA1WithBase64SaltHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
+)
+
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'mpdb',                      # Or path to database file if using sqlite3.
-        'USER': 'metpetdb',                      # Not used with sqlite3.
-        'PASSWORD': 'metpetdb',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USERNAME'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': '',
+        'TEST_NAME': env('TEST_DB_NAME'),
     }
 }
 
@@ -64,15 +84,13 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'webservices', 'static')
 
-STATIC_DOC_ROOT = os.path.join(PROJECT_DIR, 'web')
-
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
- os.path.join(PROJECT_DIR, 'web'),
+    os.path.join(PROJECT_DIR, 'web'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -96,6 +114,17 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    'django.core.context_processors.request',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -112,7 +141,7 @@ ROOT_URLCONF = 'metpetdb.urls'
 WSGI_APPLICATION = 'metpetdb.wsgi.application'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'web'),
+    os.path.join(PROJECT_DIR, 'tastyapi/templates', 'web', 'webservices'),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -122,17 +151,24 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    #'django_nose',
-    'webservices',  
-    #'fixtures',    
+    'django_nose',
+    'webservices',
+    'tastypie',
+    'tastyapi',
+    'fixtures',
+    'devserver'
 )
+
+#TEST_RUNNER = 'fixtures.util.CustomTestSuiteRunner'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -162,3 +198,4 @@ LOGGING = {
         },
     }
 }
+

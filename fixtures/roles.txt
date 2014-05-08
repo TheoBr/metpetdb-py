@@ -1,0 +1,17 @@
+[
+ {"table_name":"roles", 
+  "values": [ 
+	{"role_id": "1", "role_name": "'R1'", "rank": "1"},
+	{"role_id": "2", "role_name": "'R2'", "rank": "2"},
+	{"role_id": "3", "role_name": "'R3'", "rank": "3"},
+	{"role_id": "4", "role_name": "'R4'", "rank": "4"},
+	{"role_id": "5", "role_name": "'R5'", "rank": "5"},
+	{"role_id": "6", "role_name": "'R6'", "rank": "6"},
+	{"role_id": "7", "role_name": "'R7'", "rank": "7"},
+	{"role_id": "8", "role_name": "'R8'", "rank": "8"},
+	{"role_id": "9", "role_name": "'R9'", "rank": "9"},
+	{"role_id": "10", "role_name": "'R10'", "rank": "10"}
+	]}
+]
+
+

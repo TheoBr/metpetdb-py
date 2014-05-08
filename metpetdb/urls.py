@@ -1,18 +1,70 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.conf import settings
-from django.conf.urls.defaults import *
+# from django.views.generic.simple import direct_to_template
+# from django.views.generic.simple import redirect_to
+# from django.views.generic import TemplateView
+
+
 # Uncomment the next two lines to enable the admin:
-#from django.contrib import admin
-#admin.autodiscover()
+# from django.contrib import admin
+# admin.autodiscover()
+
+from tastyapi.resources import SampleResource, RockTypeResource, \
+                               SubsampleResource, SubsampleTypeResource, \
+                               ReferenceResource, ChemicalAnalysisResource, \
+                               MineralResource, UserResource, RegionResource, \
+                               MetamorphicGradeResource, \
+                               MetamorphicRegionResource
+from tastypie.api import Api
+
+api_v1 = Api(api_name='v1')
+api_v1.register(UserResource())
+api_v1.register(SampleResource())
+api_v1.register(RockTypeResource())
+api_v1.register(SubsampleResource())
+api_v1.register(SubsampleTypeResource())
+api_v1.register(ReferenceResource())
+api_v1.register(ChemicalAnalysisResource())
+api_v1.register(MineralResource())
+api_v1.register(RegionResource())
+api_v1.register(MetamorphicGradeResource())
+api_v1.register(MetamorphicRegionResource())
 
 urlpatterns = patterns('',
-url(r'^webservices/samples$', 'webservices.views.samples'),
-url(r'^earth$', 'webservices.views.earth', name='earth'),
-url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analyses'), 
-url(r'^api/metpetdb/$','webservices.views.metpetdb'), 
-url(r'^$', 'webservices.views.search'),
-url(r'^(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.STATIC_DOC_ROOT}),
+url(r'^register/$', 'tastyapi.views.register'),
+url(r'^authenticate/$', 'tastyapi.views.authenticate'),
+url(r'^confirm/([a-zA-Z0-9]*)/$', 'tastyapi.views.confirm'),
+url(r'^request_contributor_access/$',
+    'tastyapi.views.request_contributor_access'),
+url(r'^grant_contributor_access/([a-zA-Z0-9]*)/$',
+    'tastyapi.views.grant_contributor_access'),
+url(r'^webservices/sample/(\d+)/$','webservices.views.sample', name='sample'),
+url(r'^webservices/subsample/(\d+)/$','webservices.views.subsample', name='subsample'),
+url(r'^webservices/chemicalanalysis/(\d+)/$', 'webservices.views.chemicalanalysis', name='chemicalanalysis'),
+url(r'^api/metpetdb/$','webservices.views.metpetdb'),
+#sample list url
+url(r'^webservices/samplelist/(?P<pagenum>\d+)/$', 'webservices.views.samplelist', name='samplelist'),
+url(r'^webservices/samplelist/(?P<pagenum>\d+)/(?P<optional>.*)/$', 'webservices.views.previous', name='previous'),
+
+url(r'^webservices/samplelist/$', 'webservices.views.samplelist', name='samplelist'),
+url(r'^$', 'webservices.views.index', name='index'),
+url(r'^search/$', 'webservices.views.search', name='search'),
+# url(r'^search2/$', 'webservices.views.search2', name='search2'),
+#api calls
+url(r'^webservices/sample/(\d+)/json/$','webservices.api.sample'),
+url(r'^webservices/subsample/(\d+)/json/$','webservices.api.subsample'),
+url(r'^webservices/chemicalanalysis/(\d+)/json$', 'webservices.api.chemical_analysis'),
+# url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'),
+#below URLs- Not sure if these are used anywhere as of now
+# url(r'^webservices/samples$', 'webservices.views.samples'),
+# url(r'^webservices/samples/(?P<offset>\w+)/$', 'webservices.views.samples'),
+url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analysislist', name="chemicalanalyses"),
+url(r'^webservices/subsamples$', 'webservices.views.subsamplelist', name="subsamples"),
+
+url(r'^api/', include(api_v1.urls)),
+
+# url(r'tastyapi/views/access/(\d+)','tastyapi.views.access', name='access'),
+
 
     # Examples:
     # url(r'^$', 'metpetdb.views.home', name='home'),
@@ -22,6 +74,7 @@ url(r'^(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.ST
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+# url(r'^admin/', include(admin.site.urls)),
 )
 urlpatterns+=staticfiles_urlpatterns()
+

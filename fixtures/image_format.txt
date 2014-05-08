@@ -1,0 +1,18 @@
+[
+ {"table_name":"image_format", 
+  "values": [
+
+	{"image_format_id": "1", "name": "'format1'"},
+	{"image_format_id": "2", "name": "'format2'"},
+	{"image_format_id": "3", "name": "'format3'"},
+	{"image_format_id": "4", "name": "'format4'"},
+	{"image_format_id": "5", "name": "'format5'"},
+	{"image_format_id": "6", "name": "'format6'"},
+	{"image_format_id": "7", "name": "'format7'"},
+	{"image_format_id": "8", "name": "'format8'"},
+	{"image_format_id": "9", "name": "'format9'"},
+	{"image_format_id": "10", "name": "'format10'"}
+	]}
+]
+
+

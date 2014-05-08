@@ -1,0 +1,31 @@
+[
+ {"table_name":"elements", 
+  "values": [ 
+	{"element_id": "1", 
+	"name": "'element1'",
+	"alternate_name": "'E1'",
+	"symbol": "'a'",
+	"atomic_number": "0",
+	"weight": "0",
+	"order_id": "0"
+	}, 
+        
+	{"element_id": "2", 
+	"name": "'element2'",
+	"alternate_name": "'E2'",
+	"symbol": "'b'",
+	"atomic_number": "0",
+	"weight": "0",
+	"order_id": "0"
+	},
+
+	{"element_id": "3", 
+	"name": "'element3'",
+	"alternate_name": "'E3'",
+	"symbol": "'c'",
+	"atomic_number": "0",
+	"weight": "0",
+	"order_id": "0"
+	}]}
+
+]

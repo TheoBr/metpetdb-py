@@ -1,0 +1,15 @@
+[
+ {"table_name":"sample_minerals", 
+  "values": [
+	{"mineral_id": "1", "sample_id": "1", "amount": "'10'"},
+	{"mineral_id": "2", "sample_id": "2", "amount": "'20'"},
+	{"mineral_id": "3", "sample_id": "3", "amount": "'40'"},
+	{"mineral_id": "4", "sample_id": "2", "amount": "'50'"}
+
+	]}
+]
+
+
+
+  
+

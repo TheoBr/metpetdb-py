@@ -1,0 +1,11 @@
+[
+ {"table_name":"sample_aliases", 
+  "values": [
+	{"sample_alias_id": "1", "sample_id": "1", "alias": "'aliasA'"},
+	{"sample_alias_id": "2", "sample_id": "2", "alias": "'aliasB'"},
+	{"sample_alias_id": "3", "sample_id": "3", "alias": "'aliasC'"},
+	{"sample_alias_id": "4", "sample_id": "4", "alias": "'aliasD'"},
+	{"sample_alias_id": "5", "sample_id": "5", "alias": "'aliasE'"}
+	]}
+]
+

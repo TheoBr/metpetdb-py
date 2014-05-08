@@ -1,0 +1,10 @@
+[
+ {"table_name":"oxide_mineral_types", 
+  "values": [ 
+	{"oxide_id": "1", "mineral_type_id": "1"},
+	{"oxide_id": "2", "mineral_type_id": "2"},
+	{"oxide_id": "3", "mineral_type_id": "3"}
+	]}
+]
+
+

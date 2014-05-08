@@ -1,0 +1,59 @@
+[
+ {"table_name":"georeference", 
+  "values": [
+
+	{"georef_id": "1", 
+	"title": "'A'",
+	"first_author": "'A'",
+	"second_authors": "'A2'",
+	"journal_name": "'A'",
+	"full_text": "'A'", 
+	"reference_number":"'1'",
+	"reference_id": "1",
+	"journal_name_2": "'A'", 
+	"doi": "'A'",
+	"publication_year": "'A'"},
+
+	{"georef_id": "2", 
+	"title": "'B'",
+	"first_author": "'B'",
+	"second_authors": "'B2'",
+	"journal_name": "'B'",
+	"full_text": "'B'", 
+	"reference_number":"'2'",
+	"reference_id": "2",
+	"journal_name_2": "'B'", 
+	"doi": "'B'",
+	"publication_year": "'B'"}
+,
+
+	{"georef_id": "3", 
+	"title": "'C'",
+	"first_author": "'C'",
+	"second_authors": "'C2'",
+	"journal_name": "'C'",
+	"full_text": "'C'", 
+	"reference_number":"'3'",
+	"reference_id": "3",
+	"journal_name_2": "'C'", 
+	"doi": "'C'",
+	"publication_year": "'C'"}
+,
+
+	{"georef_id": "4", 
+	"title": "'D'",
+	"first_author": "'D'",
+	"second_authors": "'D2'",
+	"journal_name": "'D'",
+	"full_text": "'D'", 
+	"reference_number":"'4'",
+	"reference_id": "4",
+	"journal_name_2": "'D'", 
+	"doi": "'D'",
+	"publication_year": "'D'"}
+
+
+	]}
+]
+
+

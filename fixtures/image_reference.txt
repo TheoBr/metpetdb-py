@@ -1,0 +1,12 @@
+[
+ {"table_name":"image_reference", 
+  "values": [
+	{"image_id": "1", "reference_id": "1"},
+	{"image_id": "1", "reference_id": "2"},
+	{"image_id": "1", "reference_id": "3"},
+	{"image_id": "2", "reference_id": "1"},
+	{"image_id": "2", "reference_id": "2"},
+	{"image_id": "3", "reference_id": "3"}
+	]}
+]
+

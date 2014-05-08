@@ -1,0 +1,11 @@
+[
+ {"table_name":"mineral_types", 
+  "values": [ 
+	{"mineral_type_id": "0", "name": "'mineral'"}, 
+	{"mineral_type_id": "1", "name": "'mineral1'"},
+	{"mineral_type_id": "2", "name": "'mineral2'"},
+	{"mineral_type_id": "3", "name": "'mineral3'"},
+	{"mineral_type_id": "4", "name": "'mineral4'"},
+	{"mineral_type_id": "5", "name": "'mineral5'"},
+	{"mineral_type_id": "6", "name": "'mineral6'"}]}
+]

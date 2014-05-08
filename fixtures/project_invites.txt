@@ -1,0 +1,33 @@
+[
+ {"table_name":"project_invites", 
+  "values": [
+
+	{"invite_id": "1", 
+	"project_id": "1",
+	"user_id": "1",
+	"action_timestamp": "'1984-10-27 00:00:00'", 
+	"status": "'A'"},
+
+	{"invite_id": "2", 
+	"project_id": "2",
+	"user_id": "1",
+	"action_timestamp": "'1984-10-27 00:00:00'", 
+	"status": "'A'"},
+
+	{"invite_id": "3", 
+	"project_id": "3",
+	"user_id": "1",
+	"action_timestamp": "'1984-10-27 00:00:00'", 
+	"status": "'A'"},
+
+	{"invite_id": "4", 
+	"project_id": "4",
+	"user_id": "1",
+	"action_timestamp": "'1984-10-27 00:00:00'", 
+	"status": "'A'"}
+
+
+	]}
+]
+
+
