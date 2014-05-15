@@ -165,6 +165,12 @@ class CustomApiKeyAuth(ApiKeyAuthentication):
     Let anybody access resources with public_data == 'Y'
     """
 
+    # def is_authenticated(self, request, **kwargs):
+    #     if request.method == 'GET':
+    #         return True
+    #     else:
+    #         return super(CustomApiKeyAuth, self).is_authenticated(request,
+    #                                                               **kwargs)
     def is_authenticated(self, request, **kwargs):
         if request.method == 'GET':
             try:
@@ -174,7 +180,7 @@ class CustomApiKeyAuth(ApiKeyAuthentication):
                 request.user = AnonymousUser()
         else:
             return super(CustomApiKeyAuth, self).is_authenticated(request,
-                                                                  **kwargs)
+                         **kwargs)
 
 class FirstOrderResource(ModelResource):
     """Resource that can only be filtered with "first-order" filters.
@@ -194,7 +200,7 @@ class FirstOrderResource(ModelResource):
         extra_filter_prefixes = []
         if filters is None:
             filters = {}
-        for filter_expr, value in filters.iteritems():
+        for filter_expr, value in filters.iterlists():
             # For each filter, break it apart by double underscores...
             filter_bits = filter_expr.split("__")
             if len(filter_bits) == 0:

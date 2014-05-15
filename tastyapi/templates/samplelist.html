@@ -9,16 +9,13 @@
 			<th>Sample Number</th>
 	</thead>
 	<tbody>
-		{% if nextURL %}
-		<p>Next: {{ nextURL }}</p>
-		{% endif %}
 		{% if total %}
 		<p>Total: {{ total }}</p>
 		{% endif %}
 		{% for sample in samples %}
 		<tr>
 			<td td class="sample_value">{{sample.0}}</td>
-			<td class="sample_label"><a href="{% url 'sample' sample %}" target="_blank" >{{sample.1}}</a></td>
+			<td class="sample_label"><a href="{% url 'sample' sample.0 %}" target="_blank" >{{sample.1}}</a></td>
 		</tr>
 		{%endfor%}
 	</tbody>
@@ -26,11 +23,11 @@
 </table>
 	    <a href=""> &lt;&lt; First </a>
 		{% if pagenum > 20 %}
-			<a href='{% url samplelist pagenum %}p/'>&lt; Prev </a>
+			<a href="{% url 'samplelist' pagenum %}p/">&lt; Prev </a>
 		{% endif %}
 		{% if pagenum > 1 %}
 			{% if nextURL %}
-				<a href="{% url samplelist pagenum %}">Next &gt; </a>
+				<a href="{% url 'samplelist' pagenum %}">Next &gt; </a>
 				<!-- {% for link in offsets %}
 				<a href="{{ link }}">{{ forloop.counter }}</a>
 				{% endfor %} -->

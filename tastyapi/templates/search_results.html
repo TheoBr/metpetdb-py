@@ -1,0 +1,63 @@
+{%extends "base.html"%}
+
+{%block main%}
+
+<table id="samplelist" class="table">
+	<thead>
+		<tr>
+		{% if samples %}
+			<th>Sample Number</th>
+			<th>Country</th>
+		{% elif chemicals %}
+			<th>Chemical ID</th>
+			<th>Location</th>
+		{% endif %}
+	</thead>
+	<tbody>
+		{% if total %}
+		<p>Total: {{ total }}</p>
+		{% endif %}
+		{% if samples %}
+	    <p>Found {{ total }} sample{{ samples|pluralize }}.</p>
+	    {{ nextURL }}
+		{% for sample in samples %}
+		<tr>
+			<td class="sample_label"><a href="{% url 'sample' sample.sample_id %}" target="_blank" >{{sample.number}}</a></td>
+			<td class="sample_value">{{sample.country}}</td>
+		</tr>
+		{%endfor%}
+		{% elif chemicals %}
+	    <p>Found {{ total }} chemical{{ chemicals|pluralize }}.</p>
+		{% for chemical in chemicals %}
+		<tr>
+			<td class="sample_label"><a href="{% url 'chemical' chemical.chemical_analysis_id %}" target="_blank" >{{chemical.chemical_analysis_id}}</a></td>
+			<td class="sample_value">{% if chemical.where_done %}{{chemical.where_done}}{% else %} {{"--"}}{% endif %}</td>
+		</tr>
+		{%endfor%}
+<!-- 	    <p>Found {{ samples|length }} chemical analysis{{ samples|pluralize }}.</p>
+	    <ul>
+	        {% for sample in samples %}
+	        <li><a href="{% url 'chemicalanalysis' 261 %}" target="_blank" >{{ sample.0}}</a></li>
+	        {% endfor %}
+	    </ul> -->
+{% else %}
+    <p>No resources matched your search criteria.</p>
+{% endif %}
+	</tbody>
+	</thead>
+</table>
+	    <a href=""> &lt;&lt; First </a>
+		{% if pagenum > 20 %}
+			<a href="{% url 'samplelist' pagenum %}p/">&lt; Prev </a>
+		{% endif %}
+		{% if pagenum > 1 %}
+			{% if nextURL %}
+				<a href="{% url 'samplelist' pagenum %}">Next &gt; </a>
+				<!-- {% for link in offsets %}
+				<a href="{{ link }}">{{ forloop.counter }}</a>
+				{% endfor %} -->
+			{% endif %}
+		{% endif %}
+		<a href="">Last &gt;&gt; </a>
+
+{%endblock%}
