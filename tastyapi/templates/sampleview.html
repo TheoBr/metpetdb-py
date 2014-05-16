@@ -135,13 +135,13 @@
 			{%for subsample in subsamples%}
 			<tr>
 				<!-- The link to subsample needs to be updated to named URL+ generic views type -->
-				<td id="img-popup"><a href="{% url 'subsample' subsample.0 %}" target="_blank">{{subsample.1}}</td>
-				<td>{{subsample.2}}</td>
-				<td>{{subsample.3}}</td>
+				<td id="img-popup"><a href="{% url 'subsample' 555 %}" target="_blank">{{subsample.name}}</td>
+				<td>{{subsample.public_data}}</td>
+				<td>{{subsample.type}}</td>
 				<td>{{subsample.4}}</td>
 				<td>{{subsample.5}}</td>
 				<td>{{subsample.6}}</td>
-				<td> dont know yet</td>
+				<td> -- </td>
 			</tr>
 			{%endfor%}
 		</tbody>

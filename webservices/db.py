@@ -2,6 +2,7 @@ from django.db import connection as con
 from webservices.util import dictfetchone, dictfetchall, CustomJSONEncoder
 import json, ast
 import drest
+from getenv import env
 
 
 #Custom Class that acts as a wrapper around the drest Framework
@@ -10,7 +11,7 @@ class MetPet():
   def __init__(self, user, api):
     self.username = user
     self.api_key = api
-    self.api = drest.api.TastyPieAPI('http://localhost:8000/api/v1/')
+    self.api = drest.api.TastyPieAPI('{0}/api/v1/'.format(env('HOST_NAME')))
     self.api.auth(user, api)
   def getSample(self, id):
     response = self.api.sample.get(id)
@@ -18,7 +19,7 @@ class MetPet():
 
   def getAllSamples(self, nextpage=0, user='', api_key=''):
     if nextpage:
-      self.api = drest.api.TastyPieAPI('http://localhost:8000/api/v1/')
+      self.api = drest.api.TastyPieAPI('{0}/api/v1/'.format(env('HOST_NAME')))
       response = self.api.sample.get(params=dict(limit=20, offset=nextpage,\
                                      username=user, api_key=api_key))
       return response
@@ -42,7 +43,7 @@ class MetPet():
 
   def searchChemicals(self, filters={}, nextpage=''):
     if nextpage:
-      self.api = drest.api.TastyPieAPI('http://localhost:8000{0}'.format(nextpage))
+      self.api = drest.api.TastyPieAPI('{0}{1}'.format(env('HOST_NAME'), nextpage))
     if filters:
       response = self.api.chemical_analysis.get(params=filters)
       return response

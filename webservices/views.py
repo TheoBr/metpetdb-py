@@ -10,6 +10,9 @@ from webservices.subsample import SubsampleObject, SubsampleTableObject, Subsamp
 from webservices.chemicalanalysis import ChemicalAnalysisObject, ChemicalAnalysisTableObject
 from webservices.db import MetPet
 from tastyapi.models import Region, Sample, Reference, MetamorphicRegion
+from getenv import env
+
+
 
 #direct stdout to stderr so that it is logged by the webserver
 sys.stdout = sys.stderr
@@ -34,8 +37,7 @@ def search(request):
 		region_list.append(region.name)
 	for sample in all_samples:
 		if sample.collector and sample.collector not in collector_list:
-			print sample.collector
-			collector_list.append(sample.collector)
+			collector_list.append(unicode(sample.collector))
 	for ref in all_references:
 		reference_list.append(ref.name)
 	for mmr in all_metamorphic_regions:
@@ -52,8 +54,8 @@ def search(request):
 					search_terms[k] = []
 					search_terms[k].append(listitem)
 	#Temporary credentials for api
-	username = "anonymous0@cs.rpi.edu"
-	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	username = env('API_USER')
+	api_key = env('API_KEY')
 	api = MetPet(username,api_key)
 	#determine what resource to search for
 	if search_terms:
@@ -69,7 +71,7 @@ def search(request):
 			return render(request, 'search_results.html',
 				{'chemicals': search_results, 'query': ''})
 	else:
-		data = api.searchSamples()
+		# data = api.searchSamples()
 		return render(request, 'search_form.html',
 			{'samples': [], 'query': '', 'regions':region_list,
 			 'provenenances': collector_list, "references": reference_list,
@@ -82,10 +84,10 @@ def search(request):
 def previous(request, pagenum=1, optional=''):
 	pagenum = int(pagenum) - 40
 	#Temporary User (may be different on production)
-	api = MetPet("anonymous0@cs.rpi.edu",
-				 "24809ab2c593b544a491748094ed10d3cbffc699")
-	user = "anonymous0@cs.rpi.edu"
-	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
+	user = env('API_USER')
+	api_key = env('API_KEY')
 	#More than 20 reources were found
 	if pagenum > 1:
 		data = api.getAllSamples(pagenum, user, api_key)
@@ -110,10 +112,10 @@ def previous(request, pagenum=1, optional=''):
 	 			  'offsets': offsets, 'pagenum':pagenum, 'pageprev': pageprev})
 #List all samples
 def samplelist(request, pagenum=1):
-	api = MetPet("anonymous0@cs.rpi.edu",
-		"24809ab2c593b544a491748094ed10d3cbffc699")
-	user = "anonymous0@cs.rpi.edu"
-	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
+	user = env('API_USER')
+	api_key = env('API_KEY')
 	if pagenum > 1:
 		data = api.getAllSamples(pagenum, user, api_key)
 	else:
@@ -137,10 +139,10 @@ def samplelist(request, pagenum=1):
 				 'pagenum': pagenum, 'pageprev': pageprev})
 
 def prevsamplelist(request, pagenum=1):
-	api = MetPet("anonymous0@cs.rpi.edu",
-		 		 "24809ab2c593b544a491748094ed10d3cbffc699")
-	user = "anonymous0@cs.rpi.edu"
-	api_key = "24809ab2c593b544a491748094ed10d3cbffc699"
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
+	user = env('API_USER')
+	api_key = env('API_KEY')
 	if pagenum > 1:
 		pagenum -= 20
 		data = api.getAllSamples(pagenum, user, api_key)
@@ -165,8 +167,8 @@ def prevsamplelist(request, pagenum=1):
 	 			  'offsets': offsets, 'pagenum':pagenum, 'pageprev': pageprev})
 
 def chemical_analysislist(request):
-	api = MetPet("anonymous0@cs.rpi.edu",
-				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
 	data = api.getAllChemicalAnalysis()
 	chemicallist =[]
 	for chemical in data.data['objects']:
@@ -176,8 +178,8 @@ def chemical_analysislist(request):
 
 
 def subsamplelist(request):
-	api = MetPet("anonymous0@cs.rpi.edu",
-				 "24809ab2c593b544a491748094ed10d3cbffc699")
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
 	data = api.getAllSubSamples()
 	subsamplelist =[]
 	# print dir(samplelist)
@@ -189,7 +191,8 @@ def subsamplelist(request):
 # view function renders sampleview.html
 def sample(request, sample_id):
 
-	api = MetPet("anonymous0@cs.rpi.edu","24809ab2c593b544a491748094ed10d3cbffc699")
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
 	sampleobj = api.getSample(sample_id).data
 	sampleuser = api.getUserByURI(sampleobj['user']).data
 	location = sampleobj['location']
@@ -216,7 +219,8 @@ def sample(request, sample_id):
 # List Subsamples
 def subsample(request, subsample_id):
 
-	api = MetPet("anonymous0@cs.rpi.edu","24809ab2c593b544a491748094ed10d3cbffc699")
+	api = MetPet(env('API_USER'),
+				 env('API_KEY'))
 	subsampleobj = api.getSubSample(subsample_id).data
 	subsampleuser = api.getUserByURI(subsampleobj['user']).data
 	if subsampleobj:
