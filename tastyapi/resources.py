@@ -127,7 +127,12 @@ class ObjectAuthorization(Authorization):
         super(ObjectAuthorization, self).__init__(*args, **kwargs)
     def read_list(self, object_list, bundle):
         """Make a queryset of all the objects we can read."""
-        filters = auth.get_read_queryset(bundle.request.user)
+
+        # Let anonymous users access all public data
+        if type(bundle.request.user) == AnonymousUser:
+            filters = Q(public_data='Y')
+        else:
+            filters = auth.get_read_queryset(bundle.request.user)
         qs = object_list.filter(filters)
         return qs
     read_detail = _check_perm_closure(lambda self: self.read_perm)
@@ -165,19 +170,18 @@ class CustomApiKeyAuth(ApiKeyAuthentication):
     Let anybody access resources with public_data == 'Y'
     """
 
-    # def is_authenticated(self, request, **kwargs):
-    #     if request.method == 'GET':
-    #         return True
-    #     else:
-    #         return super(CustomApiKeyAuth, self).is_authenticated(request,
-    #                                                               **kwargs)
     def is_authenticated(self, request, **kwargs):
         if request.method == 'GET':
             try:
-                return super(CustomApiKeyAuth, self).is_authenticated(
+                # If authorization header is present, authenticate the request
+                if request.META['HTTP_AUTHORIZATION']:
+                    return super(CustomApiKeyAuth, self).is_authenticated(
                                                             request, **kwargs)
-            except:
+            except KeyError:
+                # else just set the current user to AnonymousUser and continue
+                # handling the request
                 request.user = AnonymousUser()
+                return True
         else:
             return super(CustomApiKeyAuth, self).is_authenticated(request,
                          **kwargs)
@@ -446,9 +450,9 @@ class RegionResource(BaseResource):
         authentication = ApiKeyAuthentication()
         allowed_methods = ['get']
         resource_name = "region"
-        filtering = { 
+        filtering = {
             'region': ALL,
-            'name': ALL 
+            'name': ALL
         }
 
 class RockTypeResource(BaseResource):
