@@ -79,7 +79,6 @@ def search(request):
     return render(request, 'search_form.html', {'error': error})
 
 
-#List all samples
 def samples(request):
     #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
@@ -114,39 +113,6 @@ def samples(request):
                  })
 
 
-def chemical_analyses(request):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None)
-    data = api.getAllChemicalAnalysis()
-    chemicallist =[]
-    for chemical in data.data['objects']:
-        chemicallist.append([chemical['chemical_analysis_id'],
-                            chemical['where_done']] )
-    return render(request,'chemical_analyses.html', {'chemicals':chemicallist})
-
-
-def subsamples(request):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None)
-    data = api.getAllSubSamples()
-    subsamplelist =[]
-    # print dir(samplelist)
-    for subsample in data.data['objects']:
-        # print sample['sample_id']
-        subsamplelist.append([subsample['subsample_id'],subsample['name']] )
-    return render(request,'subsamples.html', {'subsamples':subsamplelist})
-
-def user(request, user_id):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None).api
-    user = api.user.get(user_id).data
-    if sample:
-        return render(request, 'user.html', { 'user': user })
-    else:
-        return HttpResponse("User does not Exist")
-
-
-# view function renders sampleview.html
 def sample(request, sample_id):
     #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
@@ -162,13 +128,24 @@ def sample(request, sample_id):
     subsamples_data = api.subsample.get(params=subsamples_filter)
 
     if sample:
-        return render(request, 'sample.html',{'sample':sample,
-            'samples': samplelist,'user':user,
+        return render(request, 'sample.html',{'sample':sample, 'user':user,
             'location': loc, 'subsamples': subsamples_data.data['objects']})
     else:
         return HttpResponse("Sample does not Exist")
 
-# List Subsamples
+
+def subsamples(request):
+    #TODO: Authenticate logged-in users against the API
+    api = MetPet(None, None)
+    data = api.getAllSubSamples()
+    subsamplelist =[]
+    # print dir(samplelist)
+    for subsample in data.data['objects']:
+        # print sample['sample_id']
+        subsamplelist.append([subsample['subsample_id'],subsample['name']] )
+    return render(request,'subsamples.html', {'subsamples':subsamplelist})
+
+
 def subsample(request, subsample_id):
     #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
@@ -179,7 +156,18 @@ def subsample(request, subsample_id):
     else:
         return HttpResponse("Subsample does not Exist")
 
-# view function renders chemanalysisview.html/json data depending on the request
+
+def chemical_analyses(request):
+    #TODO: Authenticate logged-in users against the API
+    api = MetPet(None, None)
+    data = api.getAllChemicalAnalysis()
+    chemicallist =[]
+    for chemical in data.data['objects']:
+        chemicallist.append([chemical['chemical_analysis_id'],
+                            chemical['where_done']] )
+    return render(request,'chemical_analyses.html', {'chemicals':chemicallist})
+
+
 def chemical_analysis(request, chemical_analysis_id):
     #TODO: Authenticate logged-in users against the API
     chemanalysisobj =ChemicalAnalysisObject(chemical_analysis_id)
@@ -187,6 +175,16 @@ def chemical_analysis(request, chemical_analysis_id):
         return render(request, 'chemical_analysis.html',{'chemicalanalysis':chemanalysisobj,})
     else:
         return HttpResponse("Chemical Analysis does not exist")
+
+
+def user(request, user_id):
+    #TODO: Authenticate logged-in users against the API
+    api = MetPet(None, None).api
+    user = api.user.get(user_id).data
+    if sample:
+        return render(request, 'user.html', { 'user': user })
+    else:
+        return HttpResponse("User does not Exist")
 
 
 def sample_images(request, sample_id):
