@@ -247,7 +247,10 @@ class FirstOrderResource(ModelResource):
             del applicable_filters[PREFIX_STRING]
             for prefix in extra_filter_prefixes:
                 # Attach some read limits to the query
-                auth_read_limit &= auth.get_read_queryset(request.user, prefix)
+                if type(request.user) == AnonymousUser:
+                    auth_read_limit &= Q(public_data='Y')
+                else:
+                    auth_read_limit &= auth.get_read_queryset(request.user, prefix)
         return self.get_object_list(request).filter(auth_read_limit,
                                                     **applicable_filters)
     def check_filtering(self, field_name, filter_type='exact', filter_bits=None):
@@ -336,9 +339,11 @@ class FirstOrderResource(ModelResource):
 
 class UserResource(BaseResource):
     class Meta:
+        resource_name = 'user'
+        allowed_methods = ['get']
         queryset = User.objects.all()
         authorization = Authorization()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         excludes = ['password', 'confirmation_code']
 
 class SampleResource(VersionedResource, FirstOrderResource):
@@ -359,7 +364,7 @@ class SampleResource(VersionedResource, FirstOrderResource):
                                     "references", null=True, full=True)
 
     class Meta:
-        queryset = Sample.objects.all()
+        queryset = Sample.objects.all().distinct('sample_id')
         allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
         authentication = CustomApiKeyAuth()
@@ -497,21 +502,23 @@ class SubsampleTypeResource(BaseResource):
     class Meta:
         resource_name = 'subsample_type'
         allowed_methods = ['get']
-        queryset = SubsampleType.objects.all()
+        queryset = SubsampleType.objects.all().distinct('subsample_type_id')
         authentication = CustomApiKeyAuth()
         filtering = {'subsample_type': ALL}
 
 class SubsampleResource(VersionedResource, FirstOrderResource):
-    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user",
+                             full=True)
     sample = fields.ToOneField(SampleResource, "sample")
-    subsample_type = fields.ToOneField(SubsampleTypeResource, "subsample_type")
+    subsample_type = fields.ToOneField(SubsampleTypeResource,
+                                       "subsample_type", full=True)
     class Meta:
-        queryset = Subsample.objects.all()
+        queryset = Subsample.objects.all().distinct('subsample_id')
         excludes = ['user']
         allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
         authorization = ObjectAuthorization('tastyapi', 'subsample')
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         filtering = {
                 'public_data': ALL,
                 'grid_id': ALL,

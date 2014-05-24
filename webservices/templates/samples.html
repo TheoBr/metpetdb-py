@@ -21,19 +21,14 @@
 	</tbody>
 	</thead>
 </table>
-	    <a href=""> &lt;&lt; First </a>
-		{% if pagenum > 20 %}
-			<a href="{% url 'samplelist' pagenum %}p/">&lt; Prev </a>
+    &lt;&lt; <a href="{{ firstPage }}"> First </a>
+		{% if prevURL %}
+			 &nbsp;  &nbsp; &lt; <a href="{{ prevURL }}">Prev </a>
 		{% endif %}
-		{% if pagenum > 1 %}
-			{% if nextURL %}
-				<a href="{% url 'samplelist' pagenum %}">Next &gt; </a>
-				<!-- {% for link in offsets %}
-				<a href="{{ link }}">{{ forloop.counter }}</a>
-				{% endfor %} -->
-			{% endif %}
+		{% if nextURL %}
+			 &nbsp;  &nbsp;<a href="{{ nextURL }}">Next</a> &gt;
 		{% endif %}
-		<a href="">Last &gt;&gt; </a>
+		 &nbsp;  &nbsp; <a href="{{ lastPage }}">Last </a>  &gt;&gt;
 
 {%endblock%}
 

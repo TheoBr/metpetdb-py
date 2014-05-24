@@ -5,9 +5,9 @@
 {% endblock %}
 
 {%block main%}
-	
+
 	<table id="sampleview_table" class="table">
-		
+
 		<tbody>
 			<tr>
 				<td class="sample_label">Owner</td>
@@ -87,7 +87,7 @@
 
 	<div id="map_canvas"></div>
 	<hr>
-				
+
 	<!-- adding image link from metpetdbweb -->
 	<div id="sampleview_images">
 		<h4 id="s_images">Sample Images</h4>
@@ -100,9 +100,9 @@
 			</thead>
 			<tbody>
 				{% for image in sample.attributes.images%}
-				<tr id="thumb_row"> 
+				<tr id="thumb_row">
 					<td><!-- URLs pointing to the current petdb server where image files are located, cant make this generic -->
-						<a href="http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum_half}}" rel="lightbox" 
+						<a href="http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum_half}}" rel="lightbox"
 							title="Image type: {{ image.image_type }} <br>
 								File name: {{ image.filename }} <br>
 								<a href='http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum}}' target='_blank'>View Original</a>">
@@ -110,13 +110,13 @@
 						</a>
 					</td>
 					<td>{{image.image_type}}</td>
-				</tr>	
+				</tr>
 				{%endfor%}
 			</tbody>
 		</table>
 	</div>
 
-	
+
 	<hr>
 	<h4 id="subsampletable_header">Subsamples</h4>
 	<table id="subsampletable_canvas">
@@ -126,7 +126,7 @@
 				<th>Public</th>
 				<th>Type</th>
 				<th>Image Count</th>
-				<th>Chemical analysis Count</th>
+				<th>Chemical Analysis Count</th>
 				<th>Owner</th>
 				<th>Image Map</th>
 			</tr>
@@ -135,12 +135,12 @@
 			{%for subsample in subsamples%}
 			<tr>
 				<!-- The link to subsample needs to be updated to named URL+ generic views type -->
-				<td id="img-popup"><a href="{% url 'subsample' 555 %}" target="_blank">{{subsample.name}}</td>
+				<td id="img-popup"><a href="{% url 'subsample' subsample.subsample_id %}" target="_blank">{{subsample.name}}</td>
 				<td>{{subsample.public_data}}</td>
-				<td>{{subsample.type}}</td>
-				<td>{{subsample.4}}</td>
-				<td>{{subsample.5}}</td>
-				<td>{{subsample.6}}</td>
+				<td>{{subsample.subsample_type.subsample_type}}</td>
+				<td>{{subsample.image_count}}</td>
+				<td>{{subsample.chem_analyses_count}}</td>
+				<td><a href=" {% url 'user' subsample.user.user_id %} "> {{ subsample.user.name }}</a></td>
 				<td> -- </td>
 			</tr>
 			{%endfor%}
@@ -155,17 +155,17 @@
 <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript">
 	//images open in a pop up window on click
-	
-	
+
+
 	console.log({{location.1}}+','+{{location.0}});
-	
+
 	$(document).ready(function() {
 		console.log('enter table code');
 	    $('#subsampletable_canvas').dataTable();
 
 	    $('#thumb_row td a').lightbox();   //lightbox code
 
-	   
+
 	} );
 
 	//google map api
@@ -176,7 +176,7 @@
 	var myCenter=new google.maps.LatLng(map_lat, map_long);
 	function initialize()
 	{
-		var mapProp = 
+		var mapProp =
 		{
 		  center:myCenter,
 		  zoom:8,
@@ -192,7 +192,7 @@
 
 		var content="latitude:"+map_lat+","+"longitude:"+map_long;
 		console.log(content);
-		
+
 		makeInfoWindowEvent(map, infowindow, content, marker);
 
 
@@ -207,6 +207,6 @@
 	}
 
 	google.maps.event.addDomListener(window, 'load', initialize);
-	
+
 </script>
 {%endblock%}

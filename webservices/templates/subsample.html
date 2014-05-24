@@ -28,11 +28,10 @@
 						<td class="subsample_value">--</td>
 					</tr>
 				</tbody>
-			</table>	
-			{{subsample}}
+			</table>
 			<hr>
-			
-			
+
+
 			<h4 id="ss_images">Subsample Images</h4>
 			<table id="subsampleviewimg_canvas">
 				<thead>
@@ -41,22 +40,22 @@
 						<th>filename</th>
 						<th>Image Type</th>
 						<th>Collector</th>
-						
+
 					</tr>
 				</thead>
 				<tbody>
 					{%for image in images%}
 					<tr id="thumb_row"><!-- images pointing to the file locations in the server, cant change this to generic as of now-->
-						<td><a href="http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum_half}}" rel="lightbox" 
+						<td><a href="http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum_half}}" rel="lightbox"
 							title="Image type: {{ image.image_type }} <br>
 								File name: {{ image.filename }} <br>
 								<a href='http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum}}' target='_blank'>View Original</a>"><img src="http://metpetdb.rpi.edu/metpetweb/image/?checksum={{image.checksum_64x64}}"></a></td>
 						<td>{{image.filename}}</td>
 						<td>{{image.image_type}}</td>
 						<td>{{image.collector}}</td>
-					</tr> 
+					</tr>
 					{%endfor%}
-				</tbody>	
+				</tbody>
 			</table>
 
 			<hr>
@@ -89,16 +88,16 @@
 						<td>{{chemanalysis.reference_x}}</td>
 						<td>{{chemanalysis.reference_y}}</td>
 						<td>{{chemanalysis.total}}</td>
-					</tr> 
+					</tr>
 					{%endfor%}
-				</tbody>	
+				</tbody>
 			</table>
 
 
 <! ------------------ JS for the page elements---------------------------------------------------------------!>
-			
 
-			<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>		
+
+			<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
 			<script type="text/javascript">
 
 				$(document).ready(function() {
@@ -107,7 +106,7 @@
 				    	'fnDrawCallback': function() {$('#thumb_row td a').lightBox()}
 				    });
 				} );
-			</script>	
-			
+			</script>
+
 	{%endblock%}
 

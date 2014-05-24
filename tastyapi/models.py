@@ -564,6 +564,9 @@ class Sample(models.Model):
     references = ManyToManyField(Reference, through='SampleReference')
     regions = ManyToManyField(Region, through='SampleRegion')
     group_access = generic.GenericRelation(GroupAccess)
+    subsample_count = models.IntegerField()
+    chem_analyses_count = models.IntegerField()
+    image_count = models.IntegerField()
 
     def __unicode__(self):
         return u'Sample #' + unicode(self.sample_id)
@@ -647,14 +650,18 @@ class Subsample(models.Model):
     subsample_id = models.BigIntegerField(primary_key=True)
     version = models.IntegerField()
     public_data = models.CharField(max_length=1)
-    sample = models.ForeignKey(Sample)
+    sample = models.ForeignKey(Sample, related_name='subsamples')
     user = models.ForeignKey('User')
     grid_id = models.BigIntegerField(null=True, blank=True)
     name = models.CharField(max_length=100)
     subsample_type = models.ForeignKey(SubsampleType)
     group_access = generic.GenericRelation(GroupAccess)
+    chem_analyses_count = models.IntegerField()
+    image_count = models.IntegerField()
+
     def __unicode__(self):
         return u'Subsample #' + unicode(self.subsample_id)
+
     class Meta:
         # managed = False
         db_table = 'subsamples'
@@ -681,7 +688,7 @@ class Grid(models.Model):
 class ChemicalAnalyses(models.Model):
     chemical_analysis_id = models.BigIntegerField(primary_key=True)
     version = models.IntegerField()
-    subsample = models.ForeignKey('Subsample')
+    subsample = models.ForeignKey('Subsample', related_name='chemical_analyses')
     public_data = models.CharField(max_length=1)
     reference_x = models.FloatField(null=True, blank=True)
     reference_y = models.FloatField(null=True, blank=True)
@@ -749,8 +756,10 @@ class Image(models.Model):
     image_id = models.BigIntegerField(primary_key=True)
     checksum = models.CharField(max_length=50)
     version = models.IntegerField()
-    sample = models.ForeignKey('Sample', null=True, blank=True)
-    subsample = models.ForeignKey('Subsample', null=True, blank=True)
+    sample = models.ForeignKey('Sample', null=True, blank=True,
+                               related_name='images')
+    subsample = models.ForeignKey('Subsample', null=True, blank=True,
+                                  related_name='images')
     image_format = models.ForeignKey(ImageFormat, null=True, blank=True)
     image_type = models.ForeignKey(ImageType)
     width = models.SmallIntegerField()

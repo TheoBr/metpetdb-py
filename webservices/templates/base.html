@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title></title>
-	
+
 	<link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet" media="screen">
 	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
 	<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
@@ -23,7 +23,7 @@
     <!--------------------Fonts for search.html ------------------------------------------------------------------>
     <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Josefin+Sans:400,600' rel='stylesheet' type='text/css'>
-    
+
 
 </head>
 <body class="container">
@@ -35,8 +35,8 @@
 		  	<a class="brand" href="{% url 'index' %}"><img src="{{ STATIC_URL }}images/MPDBlogo_sml.png"/></a>
 	   		<ul class="nav">
 			    <li><a id="search" href="{% url 'search' %}">Search Database</a></li>
-			    <li><a id="samples" href="{% url 'samplelist' %}">View Samples</a></li>
-			    <li><a id="chemicalanalyses" href="{% url 'chemicalanalyses' %}">View Chemical Analyses</a></li>
+			    <li><a id="samples" href="{% url 'samples' %}">View Samples</a></li>
+			    <li><a id="chemicalanalyses" href="{% url 'chemical_analyses' %}">View Chemical Analyses</a></li>
 			    <li><a id="about" href="#">About</a></li>
 			    <li><a id="help" href="#">Help</a></li>
 		    </ul>
@@ -47,7 +47,7 @@
 {% block title %}
 {%endblock%}
 
-{%block main%}	
+{%block main%}
 {%endblock%}
 
 

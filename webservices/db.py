@@ -12,20 +12,8 @@ class MetPet():
     self.username = user
     self.api_key = api
     self.api = drest.api.TastyPieAPI('{0}/api/v1/'.format(env('HOST_NAME')))
-    self.api.auth(user, api)
-  def getSample(self, id):
-    response = self.api.sample.get(id)
-    return self.api.sample.get(id)
-
-  def getAllSamples(self, nextpage=0, user='', api_key=''):
-    if nextpage:
-      self.api = drest.api.TastyPieAPI('{0}/api/v1/'.format(env('HOST_NAME')))
-      response = self.api.sample.get(params=dict(limit=20, offset=nextpage,\
-                                     username=user, api_key=api_key))
-      return response
-    else:
-      response = self.api.sample.get()
-      return response
+    if self.username:
+      self.api.auth(user, api)
 
   def searchSamples(self, filters={}, nextpage=''):
     if filters:
@@ -80,7 +68,7 @@ class MetPet():
 
   def createSubSample(self):
     response = self.api.subsample.post(id)
-    return response    
+    return response
 
   def updateSubSample(self, id, data):
     response = self.api.subsample.put(id, data)
@@ -127,14 +115,14 @@ class _DbObject(object):
     attributes = {}
 
     getQuery = None
-    
+
     def _get(self, conditions):
         self.attributes = self.getQuery.execute(conditions)
         return self.exists()
-    
+
     def exists(self):
         raise NotImplementedError("Should have implemented this")
-        
+
     def json(self):
         return json.dumps(self.attributes, cls=CustomJSONEncoder)
 
@@ -152,7 +140,7 @@ class _DbGetQuery(object):
         if self.oneQuery:
             cursor.execute(self.oneQuery, conditions)
             data = dictfetchone(cursor)
-        
+
         if (self.oneQuery and "error" not in data and self.manyQueries) or\
            (self.oneQuery is None and self.manyQueries):
             for item, query in self.manyQueries.iteritems():
