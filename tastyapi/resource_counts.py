@@ -9,11 +9,14 @@ def main():
         sample.subsample_count = sample.subsamples.all().count()
         sample.image_count = sample.images.all().count()
 
-        count = 0
+        chem_analyses_count = 0
+        img_count = 0
         for subsample in sample.subsamples.all():
-            count += subsample.chemical_analyses.all().count()
+            chem_analyses_count += subsample.chemical_analyses.all().count()
+            img_count += subsample.images.all().count()
 
-        sample.chem_analyses_count = count
+        sample.chem_analyses_count = chem_analyses_count
+        sample.image_count += img_count
         sample.save()
 
     for subsample in Subsample.objects.all():
