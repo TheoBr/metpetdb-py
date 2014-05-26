@@ -1,4 +1,5 @@
 from django.db import connection as con
+from django.core.urlresolvers import reverse
 import json
 
 
@@ -44,7 +45,7 @@ def getAllJSON(query):
 
                         jsonData.append(jsonValues)
                 else:
-                        
+
                         jsonValues['id']=unicode(data[i][0])
                         jsonValues['sample_number']=unicode(data[i][1])
                         jsonValues['rock_type']=unicode(data[i][2])
@@ -53,7 +54,7 @@ def getAllJSON(query):
                         jsonValues['lon']=unicode(data[i][5])
                         jsonData.append(jsonValues)
                 i=i+1
-               
+
         return json.dumps(jsonData)
 
 #create HTML table output for results (This is currently a hack. Code must be cleaned to generate HTML when format=HTML)
@@ -72,3 +73,18 @@ def getSampleResults(query):
         return htmlData
 
 
+# Pagination helper; currently used by Sample and ChemicalAnalyses
+def paginate_model(model_name, data, offset):
+    next, previous = None, None
+    if data.data['meta']['next']:
+        next_offset = int(offset) + 20
+        next = reverse(model_name) + '?' + 'offset={0}'.format(next_offset)
+    if data.data['meta']['previous']:
+        prev_offset = int(offset) - 20
+        previous = reverse(model_name) + '?' + 'offset={0}'.format(prev_offset)
+
+    total_count = data.data['meta']['total_count']
+    last = reverse(model_name) + '?' + 'offset={0}'.format(total_count -
+                                                          total_count%20)
+
+    return (next, previous, last, total_count)

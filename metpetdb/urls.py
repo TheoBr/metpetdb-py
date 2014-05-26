@@ -13,13 +13,14 @@ from tastyapi.resources import SampleResource, RockTypeResource, \
                                SubsampleResource, SubsampleTypeResource, \
                                ReferenceResource, ChemicalAnalysisResource, \
                                MineralResource, UserResource, RegionResource, \
-                               MetamorphicGradeResource, \
+                               MetamorphicGradeResource, SampleAliasResource, \
                                MetamorphicRegionResource
 from tastypie.api import Api
 
 api_v1 = Api(api_name='v1')
 api_v1.register(UserResource())
 api_v1.register(SampleResource())
+api_v1.register(SampleAliasResource())
 api_v1.register(RockTypeResource())
 api_v1.register(SubsampleResource())
 api_v1.register(SubsampleTypeResource())

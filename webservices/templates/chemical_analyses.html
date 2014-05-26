@@ -3,20 +3,28 @@
 {%block main%}
 
 <table id="samplelist" class="table">
-	<thead>
-		<tr>
-			<th>Chemical Analysis ID</th>
-			<th>Chemical Analysis Location</th>
-	</thead>
-	<tbody>
-		{% for chem in chemicals %}
-		<tr>
-			<td td class="sample_value"><a href="{% url 'chemical_analysis' chem.0 %}" target="_blank" >{{chem.0}}</a></td>
-			<td class="sample_label">{{chem.1}}</td>
-		</tr>
-		{%endfor%}
-	</tbody>
-	</thead>
+  <thead>
+    <tr>
+      <th>Chemical Analysis ID</th>
+      <th>Chemical Analysis Location</th>
+  </thead>
+  <tbody>
+    {% for chem in chemicals %}
+    <tr>
+      <td td class="sample_value"><a href="{% url 'chemical_analysis' chem.0 %}" target="_blank" >{{chem.0}}</a></td>
+      <td class="sample_label">{{chem.1}}</td>
+    </tr>
+    {%endfor%}
+  </tbody>
+  </thead>
 </table>
+    &lt;&lt; <a href="{{ firstPage }}"> First </a>
+    {% if prevURL %}
+       &nbsp;  &nbsp; &lt; <a href="{{ prevURL }}">Prev </a>
+    {% endif %}
+    {% if nextURL %}
+       &nbsp;  &nbsp;<a href="{{ nextURL }}">Next</a> &gt;
+    {% endif %}
+     &nbsp;  &nbsp; <a href="{{ lastPage }}">Last </a>  &gt;&gt;
 
 {%endblock%}

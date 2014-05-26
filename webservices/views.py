@@ -85,17 +85,7 @@ def samples(request):
     offset = request.GET.get('offset', 0)
     data = api.sample.get(params={'offset': offset})
 
-    next, previous = None, None
-    if data.data['meta']['next']:
-        next_offset = int(offset) + 20
-        next = reverse('samples') + '?' + 'offset={0}'.format(next_offset)
-    if data.data['meta']['previous']:
-        prev_offset = int(offset) - 20
-        previous = reverse('samples') + '?' + 'offset={0}'.format(prev_offset)
-
-    total_count = data.data['meta']['total_count']
-    last = reverse('samples') + '?' + 'offset={0}'.format(total_count -
-                                                          total_count%20)
+    next, previous, last, total_count = paginate_model('samples', data, 20)
 
     samplelist =[]
     for sample in data.data['objects']:
@@ -124,12 +114,31 @@ def sample(request, sample_id):
     latitude = location[2].replace(")","")
     loc = [longtitude, latitude]
 
-    subsamples_filter = {"sample__sample_id": sample['sample_id'], "limit": "0"}
-    subsamples_data = api.subsample.get(params=subsamples_filter)
+    filter = {"sample__sample_id": sample['sample_id'], "limit": "0"}
+
+    subsamples = api.subsample.get(params=filter).data['objects']
+
+    aliases = api.sample_alias.get(params=filter).data['objects']
+    aliases_str = [alias['alias'] for alias in aliases]
+
+    regions = [region['name'] for region in sample['regions']]
+    metamorphic_regions = [metamorphic_region['name'] for metamorphic_region in sample['metamorphic_regions']]
+    metamorphic_grades = [metamorphic_grade['name'] for metamorphic_grade in sample['metamorphic_grades']]
+    references = [reference['name'] for reference in sample['references']]
+    minerals = [mineral['name'] for mineral in sample['minerals']]
 
     if sample:
-        return render(request, 'sample.html',{'sample':sample, 'user':user,
-            'location': loc, 'subsamples': subsamples_data.data['objects']})
+        return render(request, 'sample.html',
+                     {'sample':sample,
+                      'user':user,
+                      'location': loc,
+                      'minerals': (', ').join(minerals),
+                      'regions': (', ').join(regions),
+                      'references': (', ').join(references),
+                      'metamorphic_grades': (', ').join(metamorphic_grades),
+                      'metamorphic_regions': (', ').join(metamorphic_regions),
+                      'aliases': (', ').join(aliases_str),
+                      'subsamples': subsamples})
     else:
         return HttpResponse("Sample does not Exist")
 
@@ -139,9 +148,7 @@ def subsamples(request):
     api = MetPet(None, None)
     data = api.getAllSubSamples()
     subsamplelist =[]
-    # print dir(samplelist)
     for subsample in data.data['objects']:
-        # print sample['sample_id']
         subsamplelist.append([subsample['subsample_id'],subsample['name']] )
     return render(request,'subsamples.html', {'subsamples':subsamplelist})
 
@@ -151,28 +158,57 @@ def subsample(request, subsample_id):
     api = MetPet(None, None).api
     subsample = api.subsample.get(subsample_id).data
     user = api.user.get(subsample['user']['user_id']).data
+
+    filter = {"subsample__subsample_id": subsample['subsample_id'],
+              "limit": "0"}
+    chemical_analyses = api.chemical_analysis.get(params=filter).data['objects']
+
     if subsample:
-        return render(request, 'subsample.html',{'subsample': subsample, 'user':user})
+        return render(request, 'subsample.html',
+                      {'subsample': subsample,
+                       'user':user,
+                       'chemical_analyses': chemical_analyses,
+                       'sample_id': subsample['sample'].split('/')[-2]})
     else:
         return HttpResponse("Subsample does not Exist")
 
 
+
 def chemical_analyses(request):
     #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None)
-    data = api.getAllChemicalAnalysis()
+    api = MetPet(None, None).api
+    offset = request.GET.get('offset', 0)
+    data = api.chemical_analysis.get(params={'offset': offset})
+
+    next, previous, last, total_count = paginate_model('chemical_analyses',
+                                                        data, 20)
+
     chemicallist =[]
     for chemical in data.data['objects']:
         chemicallist.append([chemical['chemical_analysis_id'],
                             chemical['where_done']] )
-    return render(request,'chemical_analyses.html', {'chemicals':chemicallist})
+    return render(request,'chemical_analyses.html',
+                 {'chemicals':chemicallist,
+                  'nextURL': next,
+                  'prevURL': previous,
+                  'total': total_count,
+                  'firstPage': reverse('chemical_analyses'),
+                  'lastPage': last})
 
 
 def chemical_analysis(request, chemical_analysis_id):
     #TODO: Authenticate logged-in users against the API
-    chemanalysisobj =ChemicalAnalysisObject(chemical_analysis_id)
-    if chemanalysisobj.exists():
-        return render(request, 'chemical_analysis.html',{'chemicalanalysis':chemanalysisobj,})
+    chem_analysis =ChemicalAnalysisObject(chemical_analysis_id)
+    api = MetPet(None, None).api
+    chem_analysis_obj = api.chemical_analysis.get(chemical_analysis_id).data
+
+    subsample = api.subsample.get_by_uri(chem_analysis_obj['subsample']).data
+
+    if chem_analysis:
+        return render(request, 'chemical_analysis.html',
+                      {'chemicalanalysis':chem_analysis,
+                       'subsample_id': subsample['subsample_id'],
+                       'sample_id': subsample['sample'].split('/')[-2]})
     else:
         return HttpResponse("Chemical Analysis does not exist")
 

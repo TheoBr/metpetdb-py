@@ -673,7 +673,8 @@ class SampleRegion(models.Model):
 
 class SampleAliase(models.Model):
     sample_alias_id = models.BigIntegerField(primary_key=True)
-    sample = models.ForeignKey('Sample', null=True, blank=True)
+    sample = models.ForeignKey('Sample', null=True, blank=True,
+                               related_name='aliases')
     alias = models.CharField(max_length=35)
     def __unicode__(self):
         return self.alias
@@ -745,6 +746,7 @@ class ChemicalAnalyses(models.Model):
     large_rock = models.CharField(max_length=1)
     total = models.FloatField(null=True, blank=True)
     spot_id = models.BigIntegerField()
+    oxides = ManyToManyField(Oxide, through='ChemicalAnalysisOxide')
     group_access = generic.GenericRelation(GroupAccess)
     def __unicode__(self):
         return u'ChemicalAnalysis #' + unicode(self.chemical_analysis_id)

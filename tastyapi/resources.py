@@ -13,8 +13,8 @@ from tastypie.exceptions import Unauthorized, InvalidFilterError, ImmediateHttpR
 from .models import User, Sample, MetamorphicGrade, MetamorphicRegion, Region,\
                     RockType, Subsample, SubsampleType, Mineral, Reference, \
                     ChemicalAnalyses, SampleRegion, SampleReference, \
-                    SampleMineral, SampleMetamorphicGrade, \
-                    SampleMetamorphicRegion
+                    SampleMineral, SampleMetamorphicGrade, SampleAliase, \
+                    SampleMetamorphicRegion, Oxide, ChemicalAnalysisOxide
 from . import auth
 from . import utils
 import logging
@@ -449,16 +449,27 @@ class SampleResource(VersionedResource, FirstOrderResource):
                 except IntegrityError: continue
 
 
+class SampleAliasResource(BaseResource):
+    sample = fields.ToOneField("tastyapi.resources.SampleResource",
+                                  "sample")
+    class Meta:
+        queryset = SampleAliase.objects.all()
+        resource_name = "sample_alias"
+        authorization = Authorization()
+        authentication = CustomApiKeyAuth()
+        allowed_methods = ['get']
+        filtering = { 'sample': ALL_WITH_RELATIONS,
+                      'alias': ALL }
+
+
 class RegionResource(BaseResource):
     class Meta:
         queryset = Region.objects.all()
         authentication = ApiKeyAuthentication()
         allowed_methods = ['get']
         resource_name = "region"
-        filtering = {
-            'region': ALL,
-            'name': ALL
-        }
+        filtering = { 'region': ALL,
+                      'name': ALL }
 
 class RockTypeResource(BaseResource):
     class Meta:
@@ -520,6 +531,7 @@ class SubsampleResource(VersionedResource, FirstOrderResource):
         authorization = ObjectAuthorization('tastyapi', 'subsample')
         authentication = CustomApiKeyAuth()
         filtering = {
+                'subsample_id': ALL,
                 'public_data': ALL,
                 'grid_id': ALL,
                 'name': ALL,
@@ -543,8 +555,11 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
     subsample = fields.ToOneField(SubsampleResource, "subsample")
     reference = fields.ToOneField(ReferenceResource, "reference", null=True)
     mineral = fields.ToOneField(MineralResource, "mineral", null=True)
+    # oxides = fields.ToManyField("tastyapi.resources.OxideResource",
+    #                              "oxides", null=True, full=True)
+
     class Meta:
-        queryset = ChemicalAnalyses.objects.all()
+        queryset = ChemicalAnalyses.objects.all().distinct('chemical_analysis_id')
         resource_name = 'chemical_analysis'
         allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
@@ -567,3 +582,18 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
                 'total': ALL,
                 }
         validation = VersionValidation(queryset, 'chemical_analysis_id')
+
+# class OxideResource(BaseResource):
+#     class Meta:
+#         queryset = Oxide.objects.all()
+#         resource_name = "oxide"
+#         authorization = Authorization()
+#         authentication = CustomApiKeyAuth()
+#         allowed_methods = ['get']
+#         filtering = {}
+
+# class ChemicalAnalysisOxideResource(BaseResource):
+#     oxide = fields.ToOneField(OxideResource, 'oxide', full=True)
+#     class Meta:
+#         queryset = ChemicalAnalysisOxide.objects.all()
+#         resource_name = 'chemical_analysis_oxide'

@@ -58,6 +58,14 @@
 						<td class="sample_label">Stage Y</td>
 					    <td class="sample_value">{{chemicalanalysis.attributes.stage_y}}</td>
 					</tr>
+					<tr>
+						<td class="sample_label">Sample</td>
+					    <td class="sample_value"><a href="{% url 'sample' sample_id %}" target="_blank">{{ sample_id }}</a></td>
+					</tr>
+					<tr>
+						<td class="sample_label">Subsample</td>
+					    <td class="sample_value"><a href="{% url 'subsample' subsample_id %}" target="_blank">{{ subsample_id }}</a></td>
+					</tr>
 			</table>
 					<div id="chem_elements">
 						<h4>Elements</h4>
@@ -71,8 +79,8 @@
 							<tbody>
 								<tr> {%for oxide in chemicalanalysis.attributes.oxides%}
 									<td>{{oxide.wt_percentage}}</td>
-									<td>{{oxide.name}}</td>	
-								</tr>	
+									<td>{{oxide.name}}</td>
+								</tr>
 									{%endfor%}
 							</tbody>
 						</table>
@@ -81,7 +89,7 @@
 
 
 
-							
+
 
 
 

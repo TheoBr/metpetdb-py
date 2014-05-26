@@ -3,32 +3,32 @@
 {%block main%}
 
 <table id="samplelist" class="table">
-	<thead>
-		<tr>
-			<th>Sample ID</th>
-			<th>Sample Number</th>
-	</thead>
-	<tbody>
-		{% if total %}
-		<p>Total: {{ total }}</p>
-		{% endif %}
-		{% for sample in samples %}
-		<tr>
-			<td td class="sample_value">{{sample.0}}</td>
-			<td class="sample_label"><a href="{% url 'sample' sample.0 %}" target="_blank" >{{sample.1}}</a></td>
-		</tr>
-		{%endfor%}
-	</tbody>
-	</thead>
+  <thead>
+    <tr>
+      <th>Sample ID</th>
+      <th>Sample Number</th>
+  </thead>
+  <tbody>
+    {% if total %}
+    <p>Total: {{ total }}</p>
+    {% endif %}
+    {% for sample in samples %}
+    <tr>
+      <td td class="sample_value">{{sample.0}}</td>
+      <td class="sample_label"><a href="{% url 'sample' sample.0 %}" target="_blank" >{{sample.1}}</a></td>
+    </tr>
+    {%endfor%}
+  </tbody>
+  </thead>
 </table>
     &lt;&lt; <a href="{{ firstPage }}"> First </a>
-		{% if prevURL %}
-			 &nbsp;  &nbsp; &lt; <a href="{{ prevURL }}">Prev </a>
-		{% endif %}
-		{% if nextURL %}
-			 &nbsp;  &nbsp;<a href="{{ nextURL }}">Next</a> &gt;
-		{% endif %}
-		 &nbsp;  &nbsp; <a href="{{ lastPage }}">Last </a>  &gt;&gt;
+    {% if prevURL %}
+       &nbsp;  &nbsp; &lt; <a href="{{ prevURL }}">Prev </a>
+    {% endif %}
+    {% if nextURL %}
+       &nbsp;  &nbsp;<a href="{{ nextURL }}">Next</a> &gt;
+    {% endif %}
+     &nbsp;  &nbsp; <a href="{{ lastPage }}">Last </a>  &gt;&gt;
 
 {%endblock%}
 
