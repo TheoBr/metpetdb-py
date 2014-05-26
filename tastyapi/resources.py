@@ -554,7 +554,7 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
     user = fields.ToOneField("tastyapi.resources.UserResource", "user")
     subsample = fields.ToOneField(SubsampleResource, "subsample")
     reference = fields.ToOneField(ReferenceResource, "reference", null=True)
-    mineral = fields.ToOneField(MineralResource, "mineral", null=True)
+    mineral = fields.ToOneField(MineralResource, "mineral", null=True, full=True)
     # oxides = fields.ToManyField("tastyapi.resources.OxideResource",
     #                              "oxides", null=True, full=True)
 
