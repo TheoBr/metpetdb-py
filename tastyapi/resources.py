@@ -347,7 +347,7 @@ class UserResource(BaseResource):
         excludes = ['password', 'confirmation_code']
 
 class SampleResource(VersionedResource, FirstOrderResource):
-    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user", full=True)
     rock_type = fields.ToOneField("tastyapi.resources.RockTypeResource",
                                   "rock_type", full=True)
     minerals = fields.ToManyField("tastyapi.resources.MineralResource",

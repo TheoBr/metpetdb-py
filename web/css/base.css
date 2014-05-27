@@ -19,7 +19,7 @@ h3
 	font-weight: 400;
 }
 
-/* Style for dummy table which has the data to export to csv*/ 
+/* Style for dummy table which has the data to export to csv*/
 #dummy
 {
     visibility: hidden;
@@ -50,7 +50,7 @@ h3
     color: #F8F8F8;
 }
 
-hr 
+hr
 {
     clear: both;
     margin-bottom: 25px;
@@ -89,10 +89,10 @@ hr
 
 
 /*------------------ CSS for SampleView ------------------*/
-/* style for tables which are affected by s2s_demo.css which is a search.html dependency */ 
+/* style for tables which are affected by s2s_demo.css which is a search.html dependency */
 #image_canvas.table thead tr th, #samplelist thead tr th, #chem_elements thead tr th
 {
-   border:0 solid #000000; 
+   border:0 solid #000000;
 }
 
 #image_canvas thead tr
@@ -101,14 +101,14 @@ hr
 	color:	white;
 }
 
-#map_canvas 
-{ 
+#map_canvas
+{
 	float: right;
 	height: 400px;
 	width: 500px;
 	border: 3px solid #C7C6C6;
 	border-radius: 5px
-	
+
 }
 
 #sampleview_table
@@ -144,13 +144,13 @@ hr
 #subsampletable_canvas_wrapper, #subsampleviewimg_canvas_wrapper, #chemtable_canvas_wrapper
 {
     margin-bottom: 50px;
-    
+
 }
 
 #subsampletable_canvas_length, #subsampleviewimg_canvas_length,  #chemtable_canvas_length
 {
     margin-top: 20px;
-    
+
     width: 400px;
     float: left;
 }
@@ -182,8 +182,8 @@ hr
 {
     font-size: 1em;
     font-weight: normal;
-    color: #FFFFFF;  
-    border: 0px solid black;  
+    color: #FFFFFF;
+    border: 0px solid black;
     padding: 3px 7px 2px 7px;
 
 }
@@ -191,7 +191,7 @@ hr
 #subsampletable_canvas tbody tr.even, #subsampleviewimg_canvas tbody tr.even, #chemtable_canvas tbody tr.even
 {
     background-color: rgba(255, 255, 255, 0.45);
-    
+
 }
 
 #subsampletable_canvas tbody tr td, #subsampleviewimg_canvas tbody tr td, #chemtable_canvas tbody tr td
@@ -211,7 +211,7 @@ hr
 #subsampletable_canvas_paginate, #subsampleviewimg_canvas_paginate, #chemtable_canvas_paginate
 {
     margin-top: 30px;
-    
+
 }
 
 #subsampletable_canvas_previous, #subsampleviewimg_canvas_previous, #chemtable_canvas_previous
@@ -259,7 +259,7 @@ hr
 #jquery-overlay
 {
 	width: 100% !important;
-	
+
 }
 
 
@@ -291,7 +291,7 @@ background-color: rgb(235, 235, 235);
 {
     width: 400px;
     float: right;
-    
+
 }
 
 #chem_elements h5
@@ -299,4 +299,25 @@ background-color: rgb(235, 235, 235);
     margin-bottom: 20px;
 }
 
+.sample_mineral:hover .full_list {
+    display: block;
+    opacity: 1;
+}
 
+.full_list {
+    height: auto;
+    display: block;
+    background: #FFFFFF;
+    margin-left: 28px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1000;
+    width: auto;
+    -webkit-transition: opacity 0.3s ease-out;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.sample_mineral {
+    margin:100px;
+}

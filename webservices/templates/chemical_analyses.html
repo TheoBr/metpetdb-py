@@ -5,14 +5,32 @@
 <table id="samplelist" class="table">
   <thead>
     <tr>
-      <th>Chemical Analysis ID</th>
-      <th>Chemical Analysis Location</th>
+      <th>Point Number</th>
+      <th>Public Data</th>
+      <th>Analysis Method</th>
+      <th>Analysis Material</th>
+      <th>Location</th>
+      <th>Analyst</th>
+      <th>Analysis Date</th>
+      <th>Reference X</th>
+      <th>Reference Y</th>
+      <th>Total</th>
   </thead>
   <tbody>
-    {% for chem in chemicals %}
+    {% for analysis in chemical_analyses %}
     <tr>
-      <td td class="sample_value"><a href="{% url 'chemical_analysis' chem.0 %}" target="_blank" >{{chem.0}}</a></td>
-      <td class="sample_label">{{chem.1}}</td>
+      <td td class="sample_value"><a href="{% url 'chemical_analysis' analysis.chemical_analysis_id %}" target="_blank" >{{ analysis.spot_id }}</a></td>
+      <td class="sample_value">{{ analysis.public_data }}</td>
+      <td class="sample_value">{{ analysis.analysis_method }}</td>
+      <td class="sample_value">{{ analysis.mineral.name }}</td>
+      <td class="sample_value">{{ analysis.where_done }}</td>
+      <td class="sample_value">{{ analysis.analyst }}</td>
+      {% if analysis.analysis_date != '' %}
+        <td class="sample_value">{{ analysis.analysis_date }}</td>
+      {% endif %}
+      <td class="sample_value">{{ analysis.reference_x }}</td>
+      <td class="sample_value">{{ analysis.reference_y }}</td>
+      <td class="sample_value">{{ analysis.total }}</td>
     </tr>
     {%endfor%}
   </tbody>

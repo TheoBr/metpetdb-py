@@ -1,5 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+import urllib
+import ast
 import json
 import sys
 from django.shortcuts import render
@@ -25,7 +27,22 @@ def index(request):
 #Request to serve search.html
 def search(request):
     #TODO: Authenticate logged-in users against the API
-    #Lists for filtering in search
+    api = MetPet(None, None)
+    filters = dict(request.GET.iterlists())
+    filter_dictionary = {}
+
+    for key in filters:
+        if filters[key][0]:
+          if key != "resource":
+            filter_dictionary[key] = ",".join(filters[key])
+
+    if request.GET.get('resource') == 'sample':
+        url = reverse('samples') + '?' + urllib.urlencode(filter_dictionary)
+        return HttpResponseRedirect(url)
+    elif request.GET.get('resource') == 'chemicalanalysis':
+        url = reverse('chemical_analyses') + '?' + urllib.urlencode(filter_dictionary)
+        return HttpResponseRedirect(url)
+
     region_list = []
     collector_list = []
     reference_list = []
@@ -34,7 +51,7 @@ def search(request):
     all_samples = Sample.objects.all().order_by("collector")
     all_references = Reference.objects.all().order_by("name")
     all_metamorphic_regions = MetamorphicRegion.objects.all().order_by("name")
-    #Populate lists
+
     for region in all_regions:
         region_list.append(region.name)
     for sample in all_samples:
@@ -45,60 +62,39 @@ def search(request):
     for mmr in all_metamorphic_regions:
         metamorphic_region_list.append(mmr.name)
 
-    search_terms = {}
-    error = False
-    #Loop through search terms from search GET request in search form
-    #Prepare dictionary of filters for api request
-    for k,v in request.GET.iterlists():
-        for listitem in v:
-            if k:
-                if k != 'resource':
-                    search_terms[k] = []
-                    search_terms[k].append(listitem)
-    #Temporary credentials for api
-    api = MetPet(None, None)
-    #determine what resource to search for
-    if search_terms:
-        if request.GET['resource'] == 'sample':
-            data = api.searchSamples(filters=dict(request.GET.iterlists()))
-            search_results = data.data['objects']
-            return render(request, 'search_results.html',
-                {'samples': search_results, 'query': ''})
-        if request.GET['resource'] == 'chemicalanalysis':
-            #search for chemical analyses
-            data = api.searchChemicals(filters=dict(request.GET.iterlists()))
-            search_results = data.data['objects']
-            return render(request, 'search_results.html',
-                {'chemicals': search_results, 'query': ''})
-    else:
-        # data = api.searchSamples()
-        return render(request, 'search_form.html',
-            {'samples': [], 'query': '', 'regions':region_list,
-             'provenenances': collector_list, "references": reference_list,
-              "mmrs": metamorphic_region_list})
-    return render(request, 'search_form.html', {'error': error})
+    return render(request, 'search_form.html',
+        {'samples': [], 'query': '', 'regions':region_list,
+         'provenenances': collector_list, "references": reference_list,
+          "mmrs": metamorphic_region_list})
 
 
 def samples(request):
     #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
+
+    filters = ast.literal_eval(json.dumps(request.GET))
     offset = request.GET.get('offset', 0)
-    data = api.sample.get(params={'offset': offset})
+    filters['offset'] = offset
+    data = api.sample.get(params=filters)
 
-    next, previous, last, total_count = paginate_model('samples', data, 20)
+    next, previous, last, total_count = paginate_model('samples', data, filters)
 
-    samplelist =[]
-    for sample in data.data['objects']:
-        samplelist.append([sample['sample_id'],sample['number']] )
+    samples = data.data['objects']
+    for sample in samples:
+        mineral_names = [mineral['name'] for mineral in sample['minerals']]
+        sample['mineral_list'] = (', ').join(mineral_names)
+
+    first_page_filters = filters
+    del first_page_filters['offset']
 
     return render(request,
                  'samples.html',
                  {
-                      'samples':samplelist,
+                      'samples': samples,
                       'nextURL': next,
                       'prevURL': previous,
                       'total': total_count,
-                      'firstPage': reverse('samples'),
+                      'firstPage': reverse('samples') + urllib.urlencode(first_page_filters),
                       'lastPage': last
                  })
 
@@ -107,7 +103,6 @@ def sample(request, sample_id):
     #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
     sample = api.sample.get(sample_id).data
-    user = api.user.get(sample['user'].split("/")[-2]).data
 
     location = sample['location'].split(" ")
     longtitude = location[1].replace("(","")
@@ -130,7 +125,6 @@ def sample(request, sample_id):
     if sample:
         return render(request, 'sample.html',
                      {'sample':sample,
-                      'user':user,
                       'location': loc,
                       'minerals': (', ').join(minerals),
                       'regions': (', ').join(regions),
@@ -177,22 +171,24 @@ def subsample(request, subsample_id):
 def chemical_analyses(request):
     #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
+    filters = ast.literal_eval(json.dumps(request.GET))
     offset = request.GET.get('offset', 0)
-    data = api.chemical_analysis.get(params={'offset': offset})
+    filters['offset'] = offset
+    data = api.chemical_analysis.get(params=filters)
 
     next, previous, last, total_count = paginate_model('chemical_analyses',
-                                                        data, 20)
+                                                        data, filters)
+    chemical_analyses = data.data['objects']
 
-    chemicallist =[]
-    for chemical in data.data['objects']:
-        chemicallist.append([chemical['chemical_analysis_id'],
-                            chemical['where_done']] )
+    first_page_filters = filters
+    del first_page_filters['offset']
+
     return render(request,'chemical_analyses.html',
-                 {'chemicals':chemicallist,
+                 {'chemical_analyses': chemical_analyses,
                   'nextURL': next,
                   'prevURL': previous,
                   'total': total_count,
-                  'firstPage': reverse('chemical_analyses'),
+                  'firstPage': reverse('chemical_analyses') + urllib.urlencode(first_page_filters),
                   'lastPage': last})
 
 
