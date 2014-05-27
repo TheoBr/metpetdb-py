@@ -94,7 +94,7 @@ def samples(request):
                       'nextURL': next,
                       'prevURL': previous,
                       'total': total_count,
-                      'firstPage': reverse('samples') + urllib.urlencode(first_page_filters),
+                      'firstPage': reverse('samples') + '?' + urllib.urlencode(first_page_filters),
                       'lastPage': last
                  })
 
@@ -174,8 +174,8 @@ def chemical_analyses(request):
     filters = ast.literal_eval(json.dumps(request.GET))
     offset = request.GET.get('offset', 0)
     filters['offset'] = offset
-    data = api.chemical_analysis.get(params=filters)
 
+    data = api.chemical_analysis.get(params=filters)
     next, previous, last, total_count = paginate_model('chemical_analyses',
                                                         data, filters)
     chemical_analyses = data.data['objects']
@@ -188,7 +188,7 @@ def chemical_analyses(request):
                   'nextURL': next,
                   'prevURL': previous,
                   'total': total_count,
-                  'firstPage': reverse('chemical_analyses') + urllib.urlencode(first_page_filters),
+                  'firstPage': reverse('chemical_analyses') + '?' + urllib.urlencode(first_page_filters),
                   'lastPage': last})
 
 

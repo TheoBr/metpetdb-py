@@ -94,8 +94,8 @@
         <option value="{{ col }}">{{ col }}</option>
     {% endfor %}
 </select><br>
-<label for="references__name">Reference: </label>
-<select name="references__name">
+<label for="reference__name">Reference: </label>
+<select name="reference__name">
     <option value="" selected="selected">Reference</option>
     {% for ref in references %}
         <option value="{{ ref }}">{{ ref }}</option>
@@ -112,13 +112,13 @@ Number: <input type="text" name="number"><br><br>
             {%endblock%}
 
 <!-- Rock Types
-    
+
 Metamorphic Grade
-    
+
 Location
-    
+
 Minerals
-    
+
 Chemistry
-    
+
 Provenance -->

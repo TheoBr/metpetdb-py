@@ -17,6 +17,9 @@
       <th>Total</th>
   </thead>
   <tbody>
+    {% if total %}
+      <p>Total: {{ total }}</p>
+    {% endif %}
     {% for analysis in chemical_analyses %}
     <tr>
       <td td class="sample_value"><a href="{% url 'chemical_analysis' analysis.chemical_analysis_id %}" target="_blank" >{{ analysis.spot_id }}</a></td>
