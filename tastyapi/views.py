@@ -56,8 +56,7 @@ def register(request):
 
 def login(request):
     if request.method == "GET":
-        response = render(request, 'login.html')
-        return response
+        return render(request, 'login.html')
 
     if request.method == "POST":
         email = request.POST.get('email')
@@ -68,15 +67,15 @@ def login(request):
         except:
             return HttpResponseRedirect(reverse('login'))
 
-    if user.django_user.check_password(password):
-        response = HttpResponseRedirect(reverse('search'))
-        response.set_cookie('email', value=user.email,
-                             expires=datetime.date.today() +
-                                     datetime.timedelta(days=1))
-        response.set_cookie('api_key', value=user.django_user.api_key.key)
-        return response
-    else:
-        return HttpResponseRedirect(reverse('login'))
+        if user.django_user.check_password(password):
+            response = HttpResponseRedirect(reverse('search'))
+            response.set_cookie('email', value=user.email,
+                                 expires=datetime.date.today() +
+                                         datetime.timedelta(days=1))
+            response.set_cookie('api_key', value=user.django_user.api_key.key)
+            return response
+        else:
+            return HttpResponseRedirect(reverse('login'))
 
 def logout(request):
     response = HttpResponseRedirect(reverse('search'))

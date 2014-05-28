@@ -324,7 +324,7 @@ def create_auth_user(sender, instance, created, raw, **kwargs):
                                                             '-'])[:30]
 
         auth_user = AuthUser.objects.create(username=username,
-                                            password=instance.password,
+                                            password=base64.b64decode(instance.password),
                                             email=instance.email,
                                             is_staff=False,
                                             is_active=True,
