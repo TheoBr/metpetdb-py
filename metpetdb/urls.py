@@ -35,7 +35,9 @@ urlpatterns = patterns('',
   url(r'^api/', include(api_v1.urls)),
 
   url(r'^register/$', 'tastyapi.views.register'),
-  url(r'^authenticate/$', 'tastyapi.views.authenticate'),
+  url(r'^login/$', 'tastyapi.views.login', name="login"),
+  url(r'^logout/$', 'tastyapi.views.logout', name="logout"),
+
   url(r'^confirm/([a-zA-Z0-9]*)/$', 'tastyapi.views.confirm'),
   url(r'^request_contributor_access/$',
       'tastyapi.views.request_contributor_access'),

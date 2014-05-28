@@ -26,8 +26,6 @@ def index(request):
 
 #Request to serve search.html
 def search(request):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None)
     filters = dict(request.GET.iterlists())
     filter_dictionary = {}
 
@@ -69,8 +67,9 @@ def search(request):
 
 
 def samples(request):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None).api
+    email = request.COOKIES.get('email', None)
+    api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(email, api_key).api
 
     filters = ast.literal_eval(json.dumps(request.GET))
     offset = request.GET.get('offset', 0)
@@ -100,8 +99,9 @@ def samples(request):
 
 
 def sample(request, sample_id):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None).api
+    email = request.COOKIES.get('email', None)
+    api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(email, api_key).api
     sample = api.sample.get(sample_id).data
 
     location = sample['location'].split(" ")
@@ -138,8 +138,9 @@ def sample(request, sample_id):
 
 
 def subsamples(request):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None)
+    email = request.COOKIES.get('email', None)
+    api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(email, api_key).api
     data = api.getAllSubSamples()
     subsamplelist =[]
     for subsample in data.data['objects']:
@@ -148,8 +149,9 @@ def subsamples(request):
 
 
 def subsample(request, subsample_id):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None).api
+    email = request.COOKIES.get('email', None)
+    api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(email, api_key).api
     subsample = api.subsample.get(subsample_id).data
     user = api.user.get(subsample['user']['user_id']).data
 
@@ -169,8 +171,10 @@ def subsample(request, subsample_id):
 
 
 def chemical_analyses(request):
-    #TODO: Authenticate logged-in users against the API
-    api = MetPet(None, None).api
+    email = request.COOKIES.get('email', None)
+    api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(email, api_key).api
+
     filters = ast.literal_eval(json.dumps(request.GET))
     offset = request.GET.get('offset', 0)
     filters['offset'] = offset
@@ -193,9 +197,11 @@ def chemical_analyses(request):
 
 
 def chemical_analysis(request, chemical_analysis_id):
-    #TODO: Authenticate logged-in users against the API
+    email = request.COOKIES.get('email', None)
+    api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(email, api_key).api
+
     chem_analysis =ChemicalAnalysisObject(chemical_analysis_id)
-    api = MetPet(None, None).api
     chem_analysis_obj = api.chemical_analysis.get(chemical_analysis_id).data
 
     subsample = api.subsample.get_by_uri(chem_analysis_obj['subsample']).data
@@ -210,7 +216,6 @@ def chemical_analysis(request, chemical_analysis_id):
 
 
 def user(request, user_id):
-    #TODO: Authenticate logged-in users against the API
     api = MetPet(None, None).api
     user = api.user.get(user_id).data
     if sample:
@@ -220,7 +225,6 @@ def user(request, user_id):
 
 
 def sample_images(request, sample_id):
-    #TODO: Authenticate logged-in users against the API
     sampleimagesobj = SampleImagesObject(sample_id)
 
     if sampleimagesobj.exists():
