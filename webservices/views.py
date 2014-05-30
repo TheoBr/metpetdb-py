@@ -6,6 +6,7 @@ import json
 import sys
 from django.shortcuts import render
 from django.db import connection as con
+from django.template import RequestContext
 from webservices.SampleQuery import *
 from webservices.utility import *
 from webservices.sample import SampleObject, SampleImagesObject
@@ -197,9 +198,9 @@ def chemical_analyses(request):
 
 
 def chemical_analysis(request, chemical_analysis_id):
-    email = request.COOKIES.get('email', None)
-    api_key = request.COOKIES.get('api_key', None)
-    api = MetPet(email, api_key).api
+    # email = request.COOKIES.get('email', None)
+    # api_key = request.COOKIES.get('api_key', None)
+    api = MetPet(None, None).api
 
     chem_analysis =ChemicalAnalysisObject(chemical_analysis_id)
     chem_analysis_obj = api.chemical_analysis.get(chemical_analysis_id).data
@@ -207,10 +208,18 @@ def chemical_analysis(request, chemical_analysis_id):
     subsample = api.subsample.get_by_uri(chem_analysis_obj['subsample']).data
 
     if chem_analysis:
-        return render(request, 'chemical_analysis.html',
-                      {'chemicalanalysis':chem_analysis,
-                       'subsample_id': subsample['subsample_id'],
-                       'sample_id': subsample['sample'].split('/')[-2]})
+        # return render(request, 'chemical_analysis.html',
+        #               {'chemicalanalysis':chem_analysis,
+        #                'subsample_id': subsample['subsample_id'],
+        #                'sample_id': subsample['sample'].split('/')[-2]})
+        del chem_analysis.attributes['analysis_date']
+        print(chem_analysis.attributes)
+        data = {
+            'chemical_analysis': chem_analysis.attributes,
+            'subsample_id': subsample['subsample_id'],
+            'sample_id': subsample['sample'].split('/')[-2]
+        }
+        return HttpResponse(json.dumps(data), mimetype='application/json')
     else:
         return HttpResponse("Chemical Analysis does not exist")
 

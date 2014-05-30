@@ -369,6 +369,7 @@ class SampleResource(VersionedResource, FirstOrderResource):
         always_return_data = True
         authentication = CustomApiKeyAuth()
         authorization = ObjectAuthorization('tastyapi', 'sample')
+        ordering = ['collector']
         excludes = ['user']
         filtering = {
                 'version': ALL,
@@ -402,7 +403,7 @@ class SampleResource(VersionedResource, FirstOrderResource):
         """
         free_text_fields = {'regions': bundle.data.pop('regions'),
                            'references': bundle.data.pop('references')}
-        super(SampleResource, self).obj_create(bundle, **kwargs)
+        super(SampleResource, self).objMetP_create(bundle, **kwargs)
         sample = Sample.objects.get(pk=bundle.obj.sample_id)
 
         for field_name, entries in free_text_fields.iteritems():
@@ -465,7 +466,8 @@ class SampleAliasResource(BaseResource):
 class RegionResource(BaseResource):
     class Meta:
         queryset = Region.objects.all()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
+        ordering = ['name']
         allowed_methods = ['get']
         resource_name = "region"
         filtering = { 'region': ALL,
@@ -476,7 +478,8 @@ class RockTypeResource(BaseResource):
         queryset = RockType.objects.all()
         resource_name = "rock_type"
         authorization = Authorization()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
+        ordering = ['rock_type']
         allowed_methods = ['get']
         filtering = { 'rock_type': ALL }
 
@@ -496,16 +499,18 @@ class MineralResource(BaseResource):
 class MetamorphicGradeResource(BaseResource):
     class Meta:
         resource_name = "metamorphic_grade"
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         queryset = MetamorphicGrade.objects.all()
+        ordering = ['name']
         allowed_methods = ['get']
         filtering = { 'name': ALL }
 
 class MetamorphicRegionResource(BaseResource):
     class Meta:
         resource_name = "metamorphic_region"
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         queryset = MetamorphicRegion.objects.all()
+        ordering = ['name']
         allowed_methods = ['get']
         filtering = { 'name': ALL }
 
@@ -546,7 +551,8 @@ class ReferenceResource(BaseResource):
         resource_name = 'reference'
         queryset = Reference.objects.all()
         allowed_methods = ['get']
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
+        ordering = ['name']
         # authorization = ObjectAuthorization('tastyapi', 'reference')
         filtering = {'name': ALL}
 
