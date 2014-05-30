@@ -6,3 +6,4 @@
 \i '6 - permissions_data.sql'
 \i '7 - tastypie.sql'
 \i '8 - tastyapi.sql'
+\i '9 - count_columns.sql'

@@ -13,13 +13,14 @@ from tastyapi.resources import SampleResource, RockTypeResource, \
                                SubsampleResource, SubsampleTypeResource, \
                                ReferenceResource, ChemicalAnalysisResource, \
                                MineralResource, UserResource, RegionResource, \
-                               MetamorphicGradeResource, \
+                               MetamorphicGradeResource, SampleAliasResource, \
                                MetamorphicRegionResource
 from tastypie.api import Api
 
 api_v1 = Api(api_name='v1')
 api_v1.register(UserResource())
 api_v1.register(SampleResource())
+api_v1.register(SampleAliasResource())
 api_v1.register(RockTypeResource())
 api_v1.register(SubsampleResource())
 api_v1.register(SubsampleTypeResource())
@@ -31,50 +32,41 @@ api_v1.register(MetamorphicGradeResource())
 api_v1.register(MetamorphicRegionResource())
 
 urlpatterns = patterns('',
-url(r'^register/$', 'tastyapi.views.register'),
-url(r'^authenticate/$', 'tastyapi.views.authenticate'),
-url(r'^confirm/([a-zA-Z0-9]*)/$', 'tastyapi.views.confirm'),
-url(r'^request_contributor_access/$',
-    'tastyapi.views.request_contributor_access'),
-url(r'^grant_contributor_access/([a-zA-Z0-9]*)/$',
-    'tastyapi.views.grant_contributor_access'),
-url(r'^webservices/sample/(\d+)/$','webservices.views.sample', name='sample'),
-url(r'^webservices/subsample/(\d+)/$','webservices.views.subsample', name='subsample'),
-url(r'^webservices/chemicalanalysis/(\d+)/$', 'webservices.views.chemicalanalysis', name='chemicalanalysis'),
-url(r'^api/metpetdb/$','webservices.views.metpetdb'),
-#sample list url
-url(r'^webservices/samplelist/(?P<pagenum>\d+)/$', 'webservices.views.samplelist', name='samplelist'),
-url(r'^webservices/samplelist/(?P<pagenum>\d+)/(?P<optional>.*)/$', 'webservices.views.previous', name='previous'),
+  url(r'^api/', include(api_v1.urls)),
 
-url(r'^webservices/samplelist/$', 'webservices.views.samplelist', name='samplelist'),
-url(r'^$', 'webservices.views.index', name='index'),
-url(r'^search/$', 'webservices.views.search', name='search'),
-# url(r'^search2/$', 'webservices.views.search2', name='search2'),
-#api calls
-url(r'^webservices/sample/(\d+)/json/$','webservices.api.sample'),
-url(r'^webservices/subsample/(\d+)/json/$','webservices.api.subsample'),
-url(r'^webservices/chemicalanalysis/(\d+)/json$', 'webservices.api.chemical_analysis'),
-# url(r'^webservices/sample/(\d+)/images/json/$','webservices.views.sample_images'),
-#below URLs- Not sure if these are used anywhere as of now
-# url(r'^webservices/samples$', 'webservices.views.samples'),
-# url(r'^webservices/samples/(?P<offset>\w+)/$', 'webservices.views.samples'),
-url(r'^webservices/chemicalanalyses$', 'webservices.views.chemical_analysislist', name="chemicalanalyses"),
-url(r'^webservices/subsamples$', 'webservices.views.subsamplelist', name="subsamples"),
+  url(r'^register/$', 'tastyapi.views.register'),
+  url(r'^login/$', 'tastyapi.views.login', name="login"),
+  url(r'^logout/$', 'tastyapi.views.logout', name="logout"),
 
-url(r'^api/', include(api_v1.urls)),
+  url(r'^confirm/([a-zA-Z0-9]*)/$', 'tastyapi.views.confirm'),
+  url(r'^request_contributor_access/$',
+      'tastyapi.views.request_contributor_access'),
+  url(r'^grant_contributor_access/([a-zA-Z0-9]*)/$',
+      'tastyapi.views.grant_contributor_access'),
 
-# url(r'tastyapi/views/access/(\d+)','tastyapi.views.access', name='access'),
+  url(r'^$', 'webservices.views.index', name='index'),
+  url(r'^search/$', 'webservices.views.search', name='search'),
 
+  url(r'^samples/$', 'webservices.views.samples', name='samples'),
+  url(r'^sample/(\d+)/$','webservices.views.sample', name='sample'),
 
-    # Examples:
-    # url(r'^$', 'metpetdb.views.home', name='home'),
-    # url(r'^metpetdb/', include('metpetdb.foo.urls')),
+  url(r'^subsamples/$', 'webservices.views.subsamples', name="subsamples"),
+  url(r'^subsample/(\d+)/$','webservices.views.subsample', name='subsample'),
 
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+  url(r'^chemical_analyses/$', 'webservices.views.chemical_analyses',
+                                name="chemical_analyses"),
+  url(r'^chemical_analysis/(\d+)/$', 'webservices.views.chemical_analysis',
+                                      name='chemical_analysis'),
 
-    # Uncomment the next line to enable the admin:
-# url(r'^admin/', include(admin.site.urls)),
+  url(r'^user/(\d+)/$','webservices.views.user', name='user'),
+
+  url(r'^api/metpetdb/$','webservices.views.metpetdb'),
+
+  # Uncomment the admin/doc line below to enable admin documentation:
+  # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+  # Uncomment the next line to enable the admin:
+  # url(r'^admin/', include(admin.site.urls)),
 )
 urlpatterns+=staticfiles_urlpatterns()
 

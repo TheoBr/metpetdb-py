@@ -1,87 +1,38 @@
 from django.db import connection as con
 from webservices.util import dictfetchone, dictfetchall, CustomJSONEncoder
-import json
+import json, ast
 import drest
+from getenv import env
 
+
+#Custom Class that acts as a wrapper around the drest Framework
 class MetPet():
-  # api = drest.API('http://localhost:8000/tastyapi/v1/')
-  # username = "westp"
-  # api_key = "c"
-  # api.auth(username, api_key)
-  
-  # data = {
-  #   'sample_id': 189,
-  #     'version': 2,
-  #     'user': '/tastyapi/v1/user/85/',
-  #     'sesar_number': '1434a',
-  #     'public_data': 'Y',
-  #     'date_precision': 1,
-  #     'number': 'NL-67:2005-36290',
-  #     'rock_type': '/tastyapi/v1/rock_type/16/',
-  #     'regions': ['Pune', 'Mumbai', 'Pune', 'Hyderabad'],
-  #     'references': ['2004-061314',
-  #                    '2004-065494',
-  #                    '2004-065494'],
-  #     'metamorphic_grades': ['/tastyapi/v1/metamorphic_grade/1/',
-  #                            '/tastyapi/v1/metamorphic_grade/2/',
-  #                            '/tastyapi/v1/metamorphic_grade/3/',
-  #                            '/tastyapi/v1/metamorphic_grade/4/'],
-  #     'metamorphic_regions': ['/tastyapi/v1/metamorphic_region/427/',
-  #                            '/tastyapi/v1/metamorphic_region/428/',
-  #                            '/tastyapi/v1/metamorphic_region/429/',
-  #                            '/tastyapi/v1/metamorphic_region/430/'],
-  #     'minerals': ['/tastyapi/v1/mineral/1/',
-  #                  '/tastyapi/v1/mineral/2/',
-  #                  '/tastyapi/v1/mineral/3/',
-  #                  '/tastyapi/v1/mineral/4/'],
-  #     'description': 'Created by a test case',
-  #     'location_error': 2000,
-  #     'country': 'Brazil',
-  #     'location_text': 'amfadf',
-  #     'location': 'POINT (-49.3400382995604971 -16.5187797546387003)'
-  # }
-
-  # rock = {
-  #   "rock_type_id": 233,
-  #   "rock_type": "HELLO"
-  # }
+  #Initialization variables should be set according to production server
   def __init__(self, user, api):
     self.username = user
     self.api_key = api
-    self.api = drest.api.TastyPieAPI('http://localhost:8000/api/v1/')
-    self.api.auth(user, api)
-  def getSample(self, id):
-    response = self.api.sample.get(id)
-    return self.api.sample.get(id)
+    self.api = drest.api.TastyPieAPI('{0}/api/v1/'.format(env('HOST_NAME')))
+    if self.username:
+      self.api.auth(user, api)
 
-
-  def getAllSamples(self, nextpage=0, user='', api_key=''):
-    if nextpage:
-      self.api = drest.api.TastyPieAPI('http://localhost:8000/api/v1/')
-      # offset_filter = ''
-      # print filters
-      # filters = {u'collection_date': u'', u'region': u'', u'sesar': u'', u'version': u'1', u'public': u'', u'rock_type': u''}
-      response = self.api.sample.get(params=dict(limit=20, offset=nextpage, username=user, api_key=api_key))
-      return response
-    else:
-      response = self.api.sample.get()
-      return response
   def searchSamples(self, filters={}, nextpage=''):
     if filters:
-      print filters
-      # filters['offset'] = nextpage
-      # filters = {u'collection_date': u'', u'region': u'', u'sesar': u'', u'version': u'1', u'public': u'', u'rock_type': u''}
-      response = self.api.sample.get(params=filters)
+      filter_dictionary = {}
+      for k in filters:
+        if filters[k][0]:
+          if k != "resource":
+            filter_dictionary[k] = ",".join(filters[k])
+      filter_dictionary = ast.literal_eval(json.dumps(filter_dictionary))
+      response = self.api.sample.get(params=filter_dictionary)
       return response
     else:
       response = self.api.sample.get()
       return response
+
   def searchChemicals(self, filters={}, nextpage=''):
     if nextpage:
-      self.api = drest.api.TastyPieAPI('http://localhost:8000{0}'.format(nextpage))
+      self.api = drest.api.TastyPieAPI('{0}{1}'.format(env('HOST_NAME'), nextpage))
     if filters:
-      print filters
-      # filters = {u'collection_date': u'', u'region': u'', u'sesar': u'', u'version': u'1', u'public': u'', u'rock_type': u''}
       response = self.api.chemical_analysis.get(params=filters)
       return response
     else:
@@ -93,29 +44,6 @@ class MetPet():
       response = self.api.subsample.get(params=filters)
     return response
 
-  # def searchSamples(self, user='', api_key=''):
-  # #   if nextpage:
-  # #     self.api = drest.api.TastyPieAPI('http://localhost:8000/api/v1/')
-  # #     # offset_filter = ''
-  # #     # print filters
-  # #     # filters = {u'collection_date': u'', u'region': u'', u'sesar': u'', u'version': u'1', u'public': u'', u'rock_type': u''}
-  # #     response = self.api.sample.get(params=dict(limit=20, offset=nextpage, username=user, api_key=api_key))
-  # #     return response
-  # #   else:
-  # #     response = self.api.sample.get()
-  # #     return response
-  # # def searchSamples(self, filters={}, nextpage=''):
-  # #   if nextpage:
-  # #     self.api = drest.api.TastyPieAPI('http://localhost:8000{0}'.format(nextpage))
-  # #   if filters:
-  # #     print filters
-  # #     # filters = {u'collection_date': u'', u'region': u'', u'sesar': u'', u'version': u'1', u'public': u'', u'rock_type': u''}
-  # #     response = self.api.sample.get(params=filters)
-  # #     return response
-  # #   else:
-  # #     response = self.api.sample.get()
-  # #     return response
-  #   pass
 
   def createSample(self, data):
     response = self.api.sample.post(data)
@@ -140,7 +68,7 @@ class MetPet():
 
   def createSubSample(self):
     response = self.api.subsample.post(id)
-    return response    
+    return response
 
   def updateSubSample(self, id, data):
     response = self.api.subsample.put(id, data)
@@ -156,8 +84,6 @@ class MetPet():
 
   def getAllChemicalAnalysis(self, filters={}):
     if filters:
-      print filters
-      # filters = {u'collection_date': u'', u'region': u'', u'sesar': u'', u'version': u'1', u'public': u'', u'rock_type': u''}
       response = self.api.chemical_analysis.get(params=filters)
       return response
     else:
@@ -189,14 +115,14 @@ class _DbObject(object):
     attributes = {}
 
     getQuery = None
-    
+
     def _get(self, conditions):
         self.attributes = self.getQuery.execute(conditions)
         return self.exists()
-    
+
     def exists(self):
         raise NotImplementedError("Should have implemented this")
-        
+
     def json(self):
         return json.dumps(self.attributes, cls=CustomJSONEncoder)
 
@@ -214,10 +140,10 @@ class _DbGetQuery(object):
         if self.oneQuery:
             cursor.execute(self.oneQuery, conditions)
             data = dictfetchone(cursor)
-        
-        if (self.oneQuery and "error" not in data and self.manyQueries) or (self.oneQuery is None and self.manyQueries):
+
+        if (self.oneQuery and "error" not in data and self.manyQueries) or\
+           (self.oneQuery is None and self.manyQueries):
             for item, query in self.manyQueries.iteritems():
                 cursor.execute(query, conditions)
                 data[item] = dictfetchall(cursor)
-        
         return data

@@ -13,8 +13,8 @@ from tastypie.exceptions import Unauthorized, InvalidFilterError, ImmediateHttpR
 from .models import User, Sample, MetamorphicGrade, MetamorphicRegion, Region,\
                     RockType, Subsample, SubsampleType, Mineral, Reference, \
                     ChemicalAnalyses, SampleRegion, SampleReference, \
-                    SampleMineral, SampleMetamorphicGrade, \
-                    SampleMetamorphicRegion
+                    SampleMineral, SampleMetamorphicGrade, SampleAliase, \
+                    SampleMetamorphicRegion, Oxide, ChemicalAnalysisOxide
 from . import auth
 from . import utils
 import logging
@@ -127,7 +127,12 @@ class ObjectAuthorization(Authorization):
         super(ObjectAuthorization, self).__init__(*args, **kwargs)
     def read_list(self, object_list, bundle):
         """Make a queryset of all the objects we can read."""
-        filters = auth.get_read_queryset(bundle.request.user)
+
+        # Let anonymous users access all public data
+        if type(bundle.request.user) == AnonymousUser:
+            filters = Q(public_data='Y')
+        else:
+            filters = auth.get_read_queryset(bundle.request.user)
         qs = object_list.filter(filters)
         return qs
     read_detail = _check_perm_closure(lambda self: self.read_perm)
@@ -168,13 +173,18 @@ class CustomApiKeyAuth(ApiKeyAuthentication):
     def is_authenticated(self, request, **kwargs):
         if request.method == 'GET':
             try:
-                return super(CustomApiKeyAuth, self).is_authenticated(
+                # If authorization header is present, authenticate the request
+                if request.META['HTTP_AUTHORIZATION']:
+                    return super(CustomApiKeyAuth, self).is_authenticated(
                                                             request, **kwargs)
-            except:
+            except KeyError:
+                # else just set the current user to AnonymousUser and continue
+                # handling the request
                 request.user = AnonymousUser()
+                return True
         else:
             return super(CustomApiKeyAuth, self).is_authenticated(request,
-                                                                  **kwargs)
+                         **kwargs)
 
 class FirstOrderResource(ModelResource):
     """Resource that can only be filtered with "first-order" filters.
@@ -194,7 +204,7 @@ class FirstOrderResource(ModelResource):
         extra_filter_prefixes = []
         if filters is None:
             filters = {}
-        for filter_expr, value in filters.iteritems():
+        for filter_expr, value in filters.iterlists():
             # For each filter, break it apart by double underscores...
             filter_bits = filter_expr.split("__")
             if len(filter_bits) == 0:
@@ -237,7 +247,10 @@ class FirstOrderResource(ModelResource):
             del applicable_filters[PREFIX_STRING]
             for prefix in extra_filter_prefixes:
                 # Attach some read limits to the query
-                auth_read_limit &= auth.get_read_queryset(request.user, prefix)
+                if type(request.user) == AnonymousUser:
+                    auth_read_limit &= Q(public_data='Y')
+                else:
+                    auth_read_limit &= auth.get_read_queryset(request.user, prefix)
         return self.get_object_list(request).filter(auth_read_limit,
                                                     **applicable_filters)
     def check_filtering(self, field_name, filter_type='exact', filter_bits=None):
@@ -326,13 +339,15 @@ class FirstOrderResource(ModelResource):
 
 class UserResource(BaseResource):
     class Meta:
+        resource_name = 'user'
+        allowed_methods = ['get']
         queryset = User.objects.all()
         authorization = Authorization()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         excludes = ['password', 'confirmation_code']
 
 class SampleResource(VersionedResource, FirstOrderResource):
-    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user", full=True)
     rock_type = fields.ToOneField("tastyapi.resources.RockTypeResource",
                                   "rock_type", full=True)
     minerals = fields.ToManyField("tastyapi.resources.MineralResource",
@@ -349,11 +364,12 @@ class SampleResource(VersionedResource, FirstOrderResource):
                                     "references", null=True, full=True)
 
     class Meta:
-        queryset = Sample.objects.all()
+        queryset = Sample.objects.all().distinct('sample_id')
         allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
         authentication = CustomApiKeyAuth()
         authorization = ObjectAuthorization('tastyapi', 'sample')
+        ordering = ['collector']
         excludes = ['user']
         filtering = {
                 'version': ALL,
@@ -387,7 +403,7 @@ class SampleResource(VersionedResource, FirstOrderResource):
         """
         free_text_fields = {'regions': bundle.data.pop('regions'),
                            'references': bundle.data.pop('references')}
-        super(SampleResource, self).obj_create(bundle, **kwargs)
+        super(SampleResource, self).objMetP_create(bundle, **kwargs)
         sample = Sample.objects.get(pk=bundle.obj.sample_id)
 
         for field_name, entries in free_text_fields.iteritems():
@@ -434,23 +450,36 @@ class SampleResource(VersionedResource, FirstOrderResource):
                 except IntegrityError: continue
 
 
+class SampleAliasResource(BaseResource):
+    sample = fields.ToOneField("tastyapi.resources.SampleResource",
+                                  "sample")
+    class Meta:
+        queryset = SampleAliase.objects.all()
+        resource_name = "sample_alias"
+        authorization = Authorization()
+        authentication = CustomApiKeyAuth()
+        allowed_methods = ['get']
+        filtering = { 'sample': ALL_WITH_RELATIONS,
+                      'alias': ALL }
+
+
 class RegionResource(BaseResource):
     class Meta:
         queryset = Region.objects.all()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
+        ordering = ['name']
         allowed_methods = ['get']
         resource_name = "region"
-        filtering = { 
-            'region': ALL,
-            'name': ALL 
-        }
+        filtering = { 'region': ALL,
+                      'name': ALL }
 
 class RockTypeResource(BaseResource):
     class Meta:
         queryset = RockType.objects.all()
         resource_name = "rock_type"
         authorization = Authorization()
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
+        ordering = ['rock_type']
         allowed_methods = ['get']
         filtering = { 'rock_type': ALL }
 
@@ -470,16 +499,18 @@ class MineralResource(BaseResource):
 class MetamorphicGradeResource(BaseResource):
     class Meta:
         resource_name = "metamorphic_grade"
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         queryset = MetamorphicGrade.objects.all()
+        ordering = ['name']
         allowed_methods = ['get']
         filtering = { 'name': ALL }
 
 class MetamorphicRegionResource(BaseResource):
     class Meta:
         resource_name = "metamorphic_region"
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         queryset = MetamorphicRegion.objects.all()
+        ordering = ['name']
         allowed_methods = ['get']
         filtering = { 'name': ALL }
 
@@ -487,22 +518,25 @@ class SubsampleTypeResource(BaseResource):
     class Meta:
         resource_name = 'subsample_type'
         allowed_methods = ['get']
-        queryset = SubsampleType.objects.all()
+        queryset = SubsampleType.objects.all().distinct('subsample_type_id')
         authentication = CustomApiKeyAuth()
         filtering = {'subsample_type': ALL}
 
 class SubsampleResource(VersionedResource, FirstOrderResource):
-    user = fields.ToOneField("tastyapi.resources.UserResource", "user")
+    user = fields.ToOneField("tastyapi.resources.UserResource", "user",
+                             full=True)
     sample = fields.ToOneField(SampleResource, "sample")
-    subsample_type = fields.ToOneField(SubsampleTypeResource, "subsample_type")
+    subsample_type = fields.ToOneField(SubsampleTypeResource,
+                                       "subsample_type", full=True)
     class Meta:
-        queryset = Subsample.objects.all()
+        queryset = Subsample.objects.all().distinct('subsample_id')
         excludes = ['user']
         allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
         authorization = ObjectAuthorization('tastyapi', 'subsample')
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
         filtering = {
+                'subsample_id': ALL,
                 'public_data': ALL,
                 'grid_id': ALL,
                 'name': ALL,
@@ -517,7 +551,8 @@ class ReferenceResource(BaseResource):
         resource_name = 'reference'
         queryset = Reference.objects.all()
         allowed_methods = ['get']
-        authentication = ApiKeyAuthentication()
+        authentication = CustomApiKeyAuth()
+        ordering = ['name']
         # authorization = ObjectAuthorization('tastyapi', 'reference')
         filtering = {'name': ALL}
 
@@ -525,9 +560,12 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
     user = fields.ToOneField("tastyapi.resources.UserResource", "user")
     subsample = fields.ToOneField(SubsampleResource, "subsample")
     reference = fields.ToOneField(ReferenceResource, "reference", null=True)
-    mineral = fields.ToOneField(MineralResource, "mineral", null=True)
+    mineral = fields.ToOneField(MineralResource, "mineral", null=True, full=True)
+    # oxides = fields.ToManyField("tastyapi.resources.OxideResource",
+    #                              "oxides", null=True, full=True)
+
     class Meta:
-        queryset = ChemicalAnalyses.objects.all()
+        queryset = ChemicalAnalyses.objects.all().distinct('chemical_analysis_id')
         resource_name = 'chemical_analysis'
         allowed_methods = ['get', 'post', 'put', 'delete']
         always_return_data = True
@@ -550,3 +588,18 @@ class ChemicalAnalysisResource(VersionedResource, FirstOrderResource):
                 'total': ALL,
                 }
         validation = VersionValidation(queryset, 'chemical_analysis_id')
+
+# class OxideResource(BaseResource):
+#     class Meta:
+#         queryset = Oxide.objects.all()
+#         resource_name = "oxide"
+#         authorization = Authorization()
+#         authentication = CustomApiKeyAuth()
+#         allowed_methods = ['get']
+#         filtering = {}
+
+# class ChemicalAnalysisOxideResource(BaseResource):
+#     oxide = fields.ToOneField(OxideResource, 'oxide', full=True)
+#     class Meta:
+#         queryset = ChemicalAnalysisOxide.objects.all()
+#         resource_name = 'chemical_analysis_oxide'

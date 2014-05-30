@@ -1,6 +1,9 @@
+from django.core.urlresolvers import reverse
 import json
 import base64
-from django.http import HttpResponse, HttpResponseNotFound
+import datetime
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
@@ -51,33 +54,34 @@ def register(request):
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
-@csrf_exempt
-def authenticate(request):
-    json_data = json.loads(request.body)
-    print(json_data['password'])
-    try:
-        user = User.objects.get(email=json_data['email'])
-    except:
-        data = {
-            'result': 'failed',
-            'message': 'invalid email address'
-        }
-        return HttpResponseForbidden(json.dumps(data),
-                                     mimetype='application/json')
-    if user.django_user.check_password(json_data['password']):
-        data = {
-            'result': 'success',
-            'email': user.email,
-            'api_key': user.django_user.api_key.key
-        }
-        return HttpResponse(json.dumps(data), mimetype='application/json')
-    else:
-        data = {
-            'status': 'failed',
-            'message': 'authentication failed'
-        }
-        return HttpResponseForbidden(json.dumps(data),
-                                     mimetype='application/json')
+def login(request):
+    if request.method == "GET":
+        return render(request, 'login.html')
+
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        try:
+            user = User.objects.get(email=email)
+        except:
+            return HttpResponseRedirect(reverse('login'))
+
+        if user.django_user.check_password(password):
+            response = HttpResponseRedirect(reverse('search'))
+            response.set_cookie('email', value=user.email,
+                                 expires=datetime.date.today() +
+                                         datetime.timedelta(days=1))
+            response.set_cookie('api_key', value=user.django_user.api_key.key)
+            return response
+        else:
+            return HttpResponseRedirect(reverse('login'))
+
+def logout(request):
+    response = HttpResponseRedirect(reverse('search'))
+    response.delete_cookie('email')
+    response.delete_cookie('api_key')
+    return response
 
 @transaction.commit_on_success
 def confirm(request, conf_code):

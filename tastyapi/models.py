@@ -40,6 +40,7 @@ PUBLIC_GROUP_DEFAULT_NAME = 'public_group'
 
 USER_GROUP_DEFAULT_PREFIX = 'user_group_'
 
+
 class GroupExtra(Model):
     group = OneToOneField(Group)
     group_type = CharField(max_length=10, choices=(('public', 'public'),
@@ -94,6 +95,32 @@ def fix_user_groups(sender, instance, created, raw, **kwargs):
 
     # Verify there is precisely one uid group for this user.
 
+
+@receiver(post_save)
+def update_resource_counts(sender, instance, created, **kwargs):
+    if created:
+        if sender == Subsample:
+            sample = instance.sample
+            sample.subsample_count += 1
+            sample.save()
+        elif sender == ChemicalAnalyses:
+            subsample = instance.subsample
+            sample = subsample.sample
+            subsample.chem_analyses_count += 1
+            sample.chem_analyses_count += 1
+            subsample.save()
+            sample.save()
+        elif sender == Image:
+            if instance.sample:
+                sample = instance.sample
+                sample.image_count += 1
+                sample.save()
+            elif instance.subsample:
+                subsample = instance.subsample
+                subsample.image_count += 1
+                subsample.save()
+
+
 @receiver(post_save)
 def create_group_access(sender, instance, created, **kwargs):
     if sender in [Sample, Subsample, ChemicalAnalyses]:
@@ -115,6 +142,7 @@ def create_group_access(sender, instance, created, **kwargs):
                 write_access = True,
                 content_type = ctype,
                 object_id = instance.pk)
+
 
 @receiver(post_save)
 def fix_public(sender, instance, created, **kwargs):
@@ -143,6 +171,7 @@ def fix_public(sender, instance, created, **kwargs):
                                         content_type=sender_type,
                                         object_id=instance.pk).delete()
             except: continue
+
 
 @receiver(post_delete)
 def delete_group_access(sender, instance, using, **kwargs):
@@ -184,6 +213,7 @@ PUBLIC_DATA_CHOICES = (('Y', 'Yes'),('N', 'No'))
 #     id = models.IntegerField(primary_key=True)
 #     class Meta:
 #         db_table = 'geometry_columns'
+
 
 def generate_confirmation_code(string):
     """
@@ -294,7 +324,7 @@ def create_auth_user(sender, instance, created, raw, **kwargs):
                                                             '-'])[:30]
 
         auth_user = AuthUser.objects.create(username=username,
-                                            password=instance.password,
+                                            password=base64.b64decode(instance.password),
                                             email=instance.email,
                                             is_staff=False,
                                             is_active=True,
@@ -329,6 +359,7 @@ class UsersRole(models.Model): #needs primary ID?
     class Meta:
         # managed = False
         db_table = 'users_roles'
+
 
 class ImageType(models.Model):
     image_type_id = models.SmallIntegerField(primary_key=True)
@@ -374,6 +405,7 @@ class MetamorphicGrade(models.Model):
         # managed = False
         db_table = u'metamorphic_grades'
 
+
 class MetamorphicRegion(models.Model):
     metamorphic_region_id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=50, unique=True)
@@ -386,6 +418,7 @@ class MetamorphicRegion(models.Model):
     class Meta:
         # managed = False
         db_table = u'metamorphic_regions'
+
 
 class MineralType(models.Model):
     mineral_type_id = models.SmallIntegerField(primary_key=True)
@@ -417,6 +450,7 @@ class Reference(models.Model):
         get_latest_by = "reference_id"
         permissions = (('read_reference', 'Can read reference'),)
 
+
 class Region(models.Model):
     region_id = models.SmallIntegerField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
@@ -427,6 +461,7 @@ class Region(models.Model):
         db_table = u'regions'
         get_latest_by = "region_id"
 
+
 class RockType(models.Model):
     rock_type_id = models.SmallIntegerField(primary_key=True)
     rock_type = models.CharField(max_length=100, unique=True)
@@ -435,6 +470,7 @@ class RockType(models.Model):
     class Meta:
         # managed = False
         db_table = u'rock_type'
+
 
 class Role(models.Model):
     role_id = models.SmallIntegerField(primary_key=True)
@@ -564,6 +600,9 @@ class Sample(models.Model):
     references = ManyToManyField(Reference, through='SampleReference')
     regions = ManyToManyField(Region, through='SampleRegion')
     group_access = generic.GenericRelation(GroupAccess)
+    subsample_count = models.IntegerField(default=0)
+    chem_analyses_count = models.IntegerField(default=0)
+    image_count = models.IntegerField(default=0)
 
     def __unicode__(self):
         return u'Sample #' + unicode(self.sample_id)
@@ -631,9 +670,11 @@ class SampleRegion(models.Model):
         db_table = u'sample_regions'
         get_latest_by = 'id'
 
+
 class SampleAliase(models.Model):
     sample_alias_id = models.BigIntegerField(primary_key=True)
-    sample = models.ForeignKey('Sample', null=True, blank=True)
+    sample = models.ForeignKey('Sample', null=True, blank=True,
+                               related_name='aliases')
     alias = models.CharField(max_length=35)
     def __unicode__(self):
         return self.alias
@@ -647,14 +688,18 @@ class Subsample(models.Model):
     subsample_id = models.BigIntegerField(primary_key=True)
     version = models.IntegerField()
     public_data = models.CharField(max_length=1)
-    sample = models.ForeignKey(Sample)
+    sample = models.ForeignKey(Sample, related_name='subsamples')
     user = models.ForeignKey('User')
     grid_id = models.BigIntegerField(null=True, blank=True)
     name = models.CharField(max_length=100)
     subsample_type = models.ForeignKey(SubsampleType)
     group_access = generic.GenericRelation(GroupAccess)
+    chem_analyses_count = models.IntegerField(default=0)
+    image_count = models.IntegerField(default=0)
+
     def __unicode__(self):
         return u'Subsample #' + unicode(self.subsample_id)
+
     class Meta:
         # managed = False
         db_table = 'subsamples'
@@ -665,6 +710,7 @@ class Subsample(models.Model):
         # Assign an ID only for create requests
         self.subsample_id = self.subsample_id or utils.get_next_id(Subsample)
         super(Subsample, self).save(**kwargs)
+
 
 class Grid(models.Model):
     grid_id = models.BigIntegerField(primary_key=True)
@@ -681,7 +727,7 @@ class Grid(models.Model):
 class ChemicalAnalyses(models.Model):
     chemical_analysis_id = models.BigIntegerField(primary_key=True)
     version = models.IntegerField()
-    subsample = models.ForeignKey('Subsample')
+    subsample = models.ForeignKey('Subsample', related_name='chemical_analyses')
     public_data = models.CharField(max_length=1)
     reference_x = models.FloatField(null=True, blank=True)
     reference_y = models.FloatField(null=True, blank=True)
@@ -700,6 +746,7 @@ class ChemicalAnalyses(models.Model):
     large_rock = models.CharField(max_length=1)
     total = models.FloatField(null=True, blank=True)
     spot_id = models.BigIntegerField()
+    oxides = ManyToManyField(Oxide, through='ChemicalAnalysisOxide')
     group_access = generic.GenericRelation(GroupAccess)
     def __unicode__(self):
         return u'ChemicalAnalysis #' + unicode(self.chemical_analysis_id)
@@ -716,6 +763,7 @@ class ChemicalAnalyses(models.Model):
                                     utils.get_next_id(ChemicalAnalyses)
         super(ChemicalAnalyses, self).save(**kwargs)
 
+
 class ChemicalAnalysisElement(models.Model):
     chemical_analysis = models.ForeignKey(ChemicalAnalyses)
     element = models.ForeignKey('Element')
@@ -729,6 +777,7 @@ class ChemicalAnalysisElement(models.Model):
     class Meta:
         # managed = False
         db_table = 'chemical_analysis_elements'
+
 
 class ChemicalAnalysisOxide(models.Model):
     chemical_analysis = models.ForeignKey(ChemicalAnalyses)
@@ -749,8 +798,10 @@ class Image(models.Model):
     image_id = models.BigIntegerField(primary_key=True)
     checksum = models.CharField(max_length=50)
     version = models.IntegerField()
-    sample = models.ForeignKey('Sample', null=True, blank=True)
-    subsample = models.ForeignKey('Subsample', null=True, blank=True)
+    sample = models.ForeignKey('Sample', null=True, blank=True,
+                               related_name='images')
+    subsample = models.ForeignKey('Subsample', null=True, blank=True,
+                                  related_name='images')
     image_format = models.ForeignKey(ImageFormat, null=True, blank=True)
     image_type = models.ForeignKey(ImageType)
     width = models.SmallIntegerField()
@@ -816,6 +867,7 @@ class ProjectInvite(models.Model):
         # managed = False
         db_table = 'project_invites'
 
+
 class ProjectMember(models.Model):
     project = models.ForeignKey('Project')
     user = models.ForeignKey('User')
@@ -823,6 +875,7 @@ class ProjectMember(models.Model):
     class Meta:
         # managed = False
         db_table = 'project_members'
+
 
 class ProjectSample(models.Model):
     project = models.ForeignKey('Project')

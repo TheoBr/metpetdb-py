@@ -18,7 +18,7 @@
 		{% for sample in samples %}
 		<tr>
 			<td td class="sample_value">{{sample.0}}</td>
-			<td class="sample_label"><a href="{% url sample sample.0 %}" target="_blank" >{{sample.1}}</a></td>
+			<td class="sample_label"><a href="{% url 'sample' sample %}" target="_blank" >{{sample.1}}</a></td>
 		</tr>
 		{%endfor%}
 	</tbody>
